@@ -12,8 +12,8 @@ class Client
 	private:
 		int			client_fd; // socket individuato come fd, ogni client ha un socket proprio
 		std::string client_ip; // IP del client
-		std::string nickname; // nome visibile in chat
-		std::string username; // identificatore dell'utente
+		std::string nickname; // nome visibile in chat, unico nel server
+		std::string username; // identificatore "tecnica" dell'utente
 		std::string buffer; //buffer che serve in caso i messaggi arrivassero spezzati
 		bool 		authenticated; // variabile per chiarire se il client e autenticato
 
@@ -39,7 +39,8 @@ class Client
 #endif
 
 
-/*NOTE:
+/*
+NOTE:
 Client = identità
 Channel = permessi
 Server = logica
@@ -48,4 +49,13 @@ ha senso mettere la flag Operator nel Channel perche un client puo essere operat
 soluzione comune:
 std::map<Client*, int> privileges;
  0 = User
- 1 = Operator*/
+ 1 = Operator
+ 
+ 
+ AUTENTICAZIONE DEL CLIENT:
+ - Password: password del client deve essere uguale alla password del server 
+ - Nickname: deve essere unico nel server (nickname identificativo nella chat)
+ - Username: controllo che e stato ricevuto 
+ 
+ 
+ */
