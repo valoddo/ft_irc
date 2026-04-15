@@ -6,7 +6,7 @@
 /*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:07 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/15 16:53:56 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/15 18:18:16 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,37 +41,6 @@ int main(int argc, char **argv)
                 handleClientRead(i, poll_fds, client_vect);
             }
         }
-		for (unsigned long i = 1; i < poll_fds.size(); i++) {
-    		if (poll_fds[i].revents & POLLOUT) {
-        		std::string& wbuf = client_vect[i].getWriteBuffer();
-        		if (!wbuf.empty()) {
-            		ssize_t sent = send(poll_fds[i].fd, wbuf.c_str(), wbuf.size(), 0);
-            		if (sent > 0) {
-                		wbuf.erase(0, sent);
-            		}
-            		if (wbuf.empty()) {
-                		poll_fds[i].events &= ~POLLOUT;
-            		}
-        		}
-    		}
-		}
+		handleClientWrite(poll_fds, client_vect);
     }
 }
-
-/*void handleClientWrite(std::vector <struct pollfd> poll_fds, std::vector <Client> client_vect)
-{
-	for (unsigned long i = 1; i < poll_fds.size(); i++) {
-    	if (poll_fds[i].revents & POLLOUT) {
-        	std::string& wbuf = client_vect[i].getWriteBuffer();
-        	if (!wbuf.empty()) {
-            	ssize_t sent = send(poll_fds[i].fd, wbuf.c_str(), wbuf.size(), 0);
-            	if (sent > 0) {
-                	wbuf.erase(0, sent);
-            	}
-            	if (wbuf.empty()) {
-                	poll_fds[i].events &= ~POLLOUT;
-            	}
-        	}
-    	}
-	}
-}*/

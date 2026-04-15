@@ -6,7 +6,7 @@
 /*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:19 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/15 16:57:29 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/15 18:19:22 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,15 @@
 #include <fcntl.h>
 
 class Server{
+    private:
+        
+
+    public:
         
 };
 
+
+void handleClientWrite(std::vector <struct pollfd> poll_fds, std::vector <Client> client_vect);
 bool handleClientRead(unsigned long i, std::vector<struct pollfd>& poll_fds, std::vector<Client>& client_vect);
 int acceptNewClient(int socket_fd, struct sockaddr_in &client_addr, std::vector <struct pollfd> &poll_fds, std::vector <Client> &client_vect);
 int setupServer(int port);
