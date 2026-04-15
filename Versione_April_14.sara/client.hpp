@@ -1,5 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   client.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/15 13:34:58 by sel-khao          #+#    #+#             */
+/*   Updated: 2026/04/15 15:49:15 by sel-khao         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
+
 #include <iostream>
 #include <string>
 #include <unistd.h>
@@ -17,6 +30,8 @@ class Client
 		std::string buffer; //buffer che serve in caso i messaggi arrivassero spezzati
 		bool 		authenticated; // variabile per chiarire se il client e autenticato
 
+		std::string write_buffer;
+
 	public:
 		Client();
 		~Client();
@@ -33,7 +48,8 @@ class Client
 		void setUser(const std::string& user);
 		void setAuthenticated(bool value);
 
-		std::string & getBuffer();
+		std::string& getBuffer();
+		std::string& getWriteBuffer();
 };
 
 #endif
