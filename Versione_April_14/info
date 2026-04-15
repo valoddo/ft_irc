@@ -1,0 +1,73 @@
+/*
+
+MY PART:
+
+Cosa devi fare per non perere messggi dopo 512:
+Buffer persistente per OGNI client (non locale nel loop)
+Appendere ogni recv() al buffer del client
+Cercare \r\n nel buffer
+Se trovi \r\n: estrarre comando, passare a Parser, rimuovere dal buffer
+Se non trovi \r\n: aspettare prossimo recv()
+
+
+struct sockaddr_in {
+    short            sin_family;   // Address family (AF_INET for IPv4)
+    unsigned short   sin_port;     // Port number (e.g., 8080)
+    struct in_addr   sin_addr;     // IP address (e.g., 127.0.0.1)
+    char             sin_zero[8];  // Padding (just to match size)
+};
+
+_____________________________________________________
+
+
+int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *errorfds, struct timeval *timeout);
+
+indicates which fd is ready for reading, writing, has error in pending. if the specified
+condition is false for all the specified fd, select() blocks up to specified timeout interval,
+until when? until the condition specified is true for at least one of the fds.
+
+int fds: range to test of fds, from 0 to nfds-1;
+if readfds/writefds/ is not null, it points to an object of type fd_set that on input specifies the file descriptors to be checked for
+being ready to read, and on output indicates which file descriptors are ready to read.
+to selet(), for errorfds we pass it that file that checks for errors.
+if success, the objects pointed to by those three are modified to indicate which file
+is ready for reading or bla bla... 
+(files as in sockets, pipes or files)
+
+ft_irc needs to handle multiple client(sockets), gotta know when any of them
+are sending me messages, with read it would only be one fd, but i need to check all of them
+
+sockets:
+an fd that rapresents a network connection.
+is a way for programs to comunicate over a network(or same computer)
+
+to send a letter to someone:
+.need address(ip and port number)
+.a mailbox to send/recive(socket)
+.u write a letter, put it in the box(send data throught socket)
+.he reads letter(recives data throught socket)
+int socket = socket();
+it creates a number that i can use to send, write data or close connection
+
+same as fd, but instead of writing to disk, im doing it over the network
+
+TPC(transmition control protocol) socket.
+relaiable, like a phone call. connection always stays open.
+delivery always guaranteed or recive an error eitherwise, always in order too.
+.if packages gets lost(wifi drops, route issues, cable problems...) tcp automatically resends them.
+
+UDP(User DAtagram Protocol) socket.
+fast but unreliable, throeing letters but no garantee delivery, just send and hope it arrives.
+packets can arrive out of order, duplicated or not at all.
+faster cuz no error checking or resending.
+.used for videostreaming, u can lose a bit but keeps going, videocalls u can get glitches, DNS lookup
+
+DNS: domain nanme system. domin name: human readable names, system: 
+a phone book that translates names.
+
+connect (socket, ip address, ...)
+
+search: "google.com"
+local dns always asking.
+my pc -> local dns server
+*/
