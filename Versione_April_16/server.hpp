@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:19 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/16 16:39:53 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/16 20:52:50 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,16 +41,27 @@ class Server
 		std::string					server_port;
 		std::string					server_password;
 
+	public:
+		Server(const std::string& port, const std::string& password);
+		~Server();
+		void run();
 		void initServer();                // chiama setupServer
 		int setupServer(int port);        // privato
 		void acceptNewClient();           // usa i membri
 		bool handleClientRead(size_t i);  // i = indice in poll_fds
 		void handleClientWrite();         // itera su poll_fds
 		void sendToClient(int client_fd, const std::string& message);
-	public:
-		Server(const std::string& port, const std::string& password);
-		~Server();
-		void run();
+		void processCommand(Client& client, const std::string& command);
+		void tryAuthenticate(Client& client);
+		void execPass(Client& client, const std::string& params);
+		void execNick(Client& client, const std::string& params);
+		void execUser(Client& client, const std::string& params);
+		void execJoin(Client& client, const std::string& params);
+		void execPrivmsg(Client& client, const std::string& params);
+		void execQuit(Client& client, const std::string& params);
+		void execInvite(Client& client, const std::string& params);
+		void execTopic(Client& client, const std::string& params);
+		void execMode(Client& client, const std::string& params);
 };
 
 

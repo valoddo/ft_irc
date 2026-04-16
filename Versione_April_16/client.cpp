@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 13:34:58 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/16 16:41:39 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/16 18:00:55 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,17 @@
 
 Client::Client(): client_fd(-1), authenticated(false){}
 
-Client::~Client(){}
+Client::~Client()
+{
+    if (client_fd != -1)
+        close(client_fd);
+}
 
 int Client::getClientFd() const{return(client_fd);}
 
 const std::string& Client::getIp() const{return(client_ip);}
+
+const std::string& Client::getPass() const{return(pass_client);}
 
 const std::string& Client::getNick() const{return(nickname);}
 
@@ -29,6 +35,8 @@ bool Client::isAuthenticated() const{return(authenticated);}
 void Client::setClientFd(int fd){client_fd = fd;}
 
 void Client::setIP(const std::string& ip){client_ip = ip;}
+
+void Client::setPass(const std::string& pass){pass_client = pass;}
 
 void Client::setNick(const std::string& nick){nickname = nick;}
 

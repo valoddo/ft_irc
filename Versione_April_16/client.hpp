@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 13:34:58 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/16 01:31:02 by marvin           ###   ########.fr       */
+/*   Updated: 2026/04/16 19:59:15 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Client
 	private:
 		int			client_fd; // socket individuato come fd, ogni client ha un socket proprio
 		std::string client_ip; // IP del client
+		std::string pass_client; // password client
 		std::string nickname; // nome visibile in chat, unico nel server
 		std::string username; // identificatore "tecnica" dell'utente
 		std::string read_buffer; //buffer che serve in caso i messaggi arrivassero spezzati
@@ -38,12 +39,14 @@ class Client
 
 		int getClientFd() const;
 		const std::string& getIp() const;
+		const std::string& getPass() const;
 		const std::string& getNick() const;
 		const std::string& getUser() const;
 		bool isAuthenticated() const;
 
 		void setClientFd(int fd);
 		void setIP(const std::string& ip);
+		void setPass(const std::string& pass);
 		void setNick(const std::string& nick);
 		void setUser(const std::string& user);
 		void setAuthenticated(bool value);
@@ -73,5 +76,16 @@ std::map<Client*, int> privileges;
  - Nickname: deve essere unico nel server (nickname identificativo nella chat)
  - Username: controllo che e stato ricevuto 
  
+PASSAGGI DI CONNESSIONE CLIENT-SERVER:
+
+1. Client si connette
+2. Client invia: PASS password\r\n (se server richiede password)
+3. Client invia: NICK nickname\r\n
+4. Client invia: USER username 0 * :realname\r\n
+5. Server verifica:
+   - Password corretta (se richiesta)
+   - Nickname valido e non in uso
+   - Username valido
+6. Server invia RPL_WELCOME (001)
  
  */

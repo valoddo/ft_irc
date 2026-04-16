@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:12 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/16 02:05:46 by marvin           ###   ########.fr       */
+/*   Updated: 2026/04/16 20:52:55 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ void Server::acceptNewClient()
     std::cout << "New client connected: " << clientIP << " fd=" << client_socket << std::endl;
 }
 
-void Server::handleClientWrite()
+void Server::handleClientWrite() // Scrive dati al client (invia risposte)
 {
     for (unsigned long i = 1; i < poll_fds.size(); i++)
     {
@@ -115,8 +115,7 @@ void Server::handleClientWrite()
                 }
                 else if (sent == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
                 {
-                    // Errore grave: rimuovi client
-                    close(poll_fds[i].fd);
+                    close(poll_fds[i].fd); // Errore grave: rimuovi client
                     poll_fds.erase(poll_fds.begin() + i);
                     client_vect.erase(client_vect.begin() + (i-1));
                     i--;  // perchè abbiamo rimosso l'elemento
@@ -131,7 +130,7 @@ void Server::handleClientWrite()
     }
 }
 
-bool Server::handleClientRead(unsigned long i)
+bool Server::handleClientRead(unsigned long i) //Legge dati dal client (riceve messaggi)
 {
     char buffer[512];
     ssize_t bytes_letti;
@@ -148,6 +147,7 @@ bool Server::handleClientRead(unsigned long i)
             std::string command = buf.substr(0, pos);
             std::cout << "Comando completo: " << command << std::endl;
             buf.erase(0, pos + 2); // Qui puoi processare il comando
+            processCommand(client_vect[i-1], command);//INSERIRE FUNZIONE DI PROCESSCOMANDIRC
         }
     }
     else if (bytes_letti == 0) // client disconnesso
@@ -168,6 +168,55 @@ bool Server::handleClientRead(unsigned long i)
         }
     }
     return false;
+}
+
+void Server::processCommand(Client& client, const std::string& command)
+{
+    size_t spacePos = command.find(' ');
+    std::string cmd = command.substr(0, spacePos);
+    for (size_t i = 0; i < cmd.size(); i++)
+        cmd[i] = toupper(cmd[i]);
+    
+    std::string params = "";
+    if (spacePos != std::string::npos)
+        params = command.substr(spacePos + 1);
+    
+    if (cmd == "PASS")
+    {
+        execPass(client, params);
+        return;
+    }
+    else if (cmd == "NICK")
+    {
+        execNick(client, params);
+        return;
+    }
+    else if (cmd == "USER")
+    {
+        execUser(client, params);
+        return;
+    }
+    if (!client.isAuthenticated())
+    {
+        client.getWriteBuffer() += "451 " + cmd + " :You have not registered\r\n";
+        return;
+    }
+    if (cmd == "JOIN")
+        execJoin(client, params);
+    else if (cmd == "PRIVMSG")
+        execPrivmsg(client, params);
+    else if (cmd == "QUIT")
+        execQuit(client, params);
+    else if (cmd == "INVITE")
+        execInvite(client, params);
+    else if (cmd == "TOPIC")
+        execTopic(client, params);
+    else if (cmd == "MODE")
+        execMode(client, params);
+    else
+    {
+        client.getWriteBuffer() += "421 " + cmd + " :Unknown command\r\n";
+    }
 }
 
 void Server::sendToClient(int client_fd, const std::string& message)
@@ -193,23 +242,16 @@ void Server::run()
             std::cout << "poll failed" << std::endl;
             return;
         }
-        // Controlla se il server fd ha eventi
-        if (poll_fds[0].revents & POLLIN)
+        if (poll_fds[0].revents & POLLIN) // Controlla se il server fd ha eventi
             acceptNewClient();
-        
-        // Gestisci lettura da client
-        for (unsigned long i = 1; i < poll_fds.size(); i++)
+        for (unsigned long i = 1; i < poll_fds.size(); i++) // Gestisci lettura da client
         {
             if (poll_fds[i].revents & POLLIN)
             {
                 if (handleClientRead(i))
-                {
-                    // Se handleClientRead ha rimosso il client, l'indice i ora punta al prossimo
-                    i--; // perchè il vettore si è rimpicciolito
-                }
+                    i--; // Se handleClientRead ha rimosso il client, l'indice i ora punta al prossimo, perchè il vettore si è rimpicciolito
             }
         }
-        // Gestisci scrittura verso client
-        handleClientWrite();
+        handleClientWrite(); // Gestisci scrittura verso client
     }
 }

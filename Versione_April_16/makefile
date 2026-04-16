@@ -6,7 +6,8 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 SRC = main.cpp \
 		server.cpp \
-		client.cpp
+		client.cpp \
+		command.cpp
 
 all: $(NAME)
 
