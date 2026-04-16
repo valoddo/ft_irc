@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:19 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/16 01:55:46 by marvin           ###   ########.fr       */
+/*   Updated: 2026/04/16 16:39:53 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ class Server
 		void initServer();                // chiama setupServer
 		int setupServer(int port);        // privato
 		void acceptNewClient();           // usa i membri
-		void handleClientRead(size_t i);  // i = indice in poll_fds
+		bool handleClientRead(size_t i);  // i = indice in poll_fds
 		void handleClientWrite();         // itera su poll_fds
 		void sendToClient(int client_fd, const std::string& message);
 	public:

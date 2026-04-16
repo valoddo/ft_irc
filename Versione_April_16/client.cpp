@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 13:34:58 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/16 01:31:23 by marvin           ###   ########.fr       */
+/*   Updated: 2026/04/16 16:41:39 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ Client::Client(): client_fd(-1), authenticated(false){}
 
 Client::~Client(){}
 
-int Client::geClientFd() const{return(client_fd);}
+int Client::getClientFd() const{return(client_fd);}
 
 const std::string& Client::getIp() const{return(client_ip);}
 
