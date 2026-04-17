@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 13:34:58 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/16 19:59:15 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/17 13:40:33 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,28 +31,30 @@ class Client
 		std::string read_buffer; //buffer che serve in caso i messaggi arrivassero spezzati
 		std::string write_buffer;
 		bool 		authenticated; // variabile per chiarire se il client e autenticato
-
+	//	std::vector<Channel*>	joined_channels;
 
 	public:
 		Client();
 		~Client();
 
 		int getClientFd() const;
-		const std::string& getIp() const;
-		const std::string& getPass() const;
-		const std::string& getNick() const;
-		const std::string& getUser() const;
+		const std::string&	getIp() const;
+		const std::string&	getPass() const;
+		const std::string&	getNick() const;
+		const std::string&	getUser() const;
+		std::string			getPrefix() const;
+
 		bool isAuthenticated() const;
 
 		void setClientFd(int fd);
-		void setIP(const std::string& ip);
-		void setPass(const std::string& pass);
-		void setNick(const std::string& nick);
-		void setUser(const std::string& user);
+		void setIP(const std::string&	ip);
+		void setPass(const std::string&	pass);
+		void setNick(const std::string&	nick);
+		void setUser(const std::string&	user);
 		void setAuthenticated(bool value);
 
-		std::string& getReadBuffer();
-		std::string& getWriteBuffer();
+		std::string&	getReadBuffer();
+		std::string&	getWriteBuffer();
 };
 
 #endif

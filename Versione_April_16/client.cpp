@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 13:34:58 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/16 18:00:55 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/17 13:41:03 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,11 @@ const std::string& Client::getPass() const{return(pass_client);}
 const std::string& Client::getNick() const{return(nickname);}
 
 const std::string& Client::getUser() const{return(username);}
+
+std::string Client::getPrefix() const
+{
+	return (nickname + "!" + username +"@" + client_ip);
+}
 
 bool Client::isAuthenticated() const{return(authenticated);}
 
