@@ -66,7 +66,7 @@ bool Channel::isTopicRestricted() const
 	return topic_restricted;
 }
 
-bool Channel::isInviteOnly() const
+bool Channel::isInviteOnly() const // channel invite only
 {
 	return invite_only;	
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 18:06:03 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/18 21:21:59 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/18 22:05:41 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,27 +38,30 @@ class Channel
 		Channel(const std::string& name);
 		~Channel();
 
-		const	std::string& getName() const;
-		const	std::string& getTopic() const;
-		
-		void	setTopic(const std::string& topic);
+		const std::string& getName() const;
+		const std::string& getTopic() const;
+		const std::string& getPass() const;
+		const bool& getInviteOnly() const; // ritorna valore booleano se il channel e invite only o no
+		const bool& getTopicRestrict() const;
+
+		void setName(const std::string& name);
+		void setTopic(const std::string& topic);
+		void setPass(const std::string& pass);
 
 		// Metodi di utility
-		bool isMember(Client* client) const;
-		bool isOperator(Client* client) const;
-		
-		// bool isTopicRestricted() const; 
-		// bool isInviteOnly() const;
+		bool isMember(Client& client) const;
+		bool isOperator(Client& client) const;
+		bool isInvited(Client& client) const;  //ritorna valore booleano se il targetnick(nickname invitato) fa parte della lista di invitati o no
 		void broadcast(const std::string& message, Client* exclude = NULL);
 		void sendToClient(Client& client, const std::string& message);
 		
 		// Metodi pubblici per i comandi IRC
-		void processJoin(Client& client, const std::string& password = "");
+		void processJoin(Client& client, const std::string& pass);  //con void processJoin(Client& client, const std::string& password = "") di default se il secondo parametro non esiste, viene impostato a vuoto
 		void processPrivmsg(Client& sender, const std::string& message);
-		void processInvite(Client& inviter, Client& target);
+		void processInvite(Client& inviter, const std::string& target);
 		void processTopic(Client& setter, const std::string& newTopic);
-		void processMode(Client& changer, const std::string& mode, const std::string& param = "");
-		void processKick(Client& kicker, Client& target, const std::string& reason = "");
+		void processMode(Client& changer, const std::string& mode, const std::string& param);
+		void processKick(Client& kicker, Client& target, const std::string& reason);
 		void processQuit(Client& client, const std::string& quitMessage);
 };
 

@@ -114,12 +114,6 @@ void Server::execJoin(Client& client, const std::string& params) // JOIN <#canal
 
 
 
-void execPrivmsg(Client& client, const std::string& params); // PRIVMSG <destinatario> :<messaggio>
-
-
-
-
-
 void Server::execInvite(Client& client, const std::string& params) // INVITE <nickname> <#canale>
 {
     if (params.empty())
@@ -129,30 +123,29 @@ void Server::execInvite(Client& client, const std::string& params) // INVITE <ni
     }
     size_t spacePos = params.find(' '); // Parsa solo il primo parametro (destinatario)
     std::string targetnick = params.substr(0, spacePos);
-    std::string messagge = params.substr(spacePos + 1);
+    std::string channel = params.substr(spacePos + 1);
 
-    std::map<std::string, Channel>::iterator it = channels.find(targetnick);
+    std::map<std::string, Channel>::iterator it = channels.find(channel);
     if (it == channels.end())
     {
-        client.getWriteBuffer() += "403 " + targetnick + " :No such channel\r\n";
+        client.getWriteBuffer() += "403 " + channel + " :No such channel\r\n";
         return;
     }
-    Channel& channel = it->second;
-    Client* target = NULL;
+    bool found = false;
     for (size_t i = 0; i < client_vect.size(); i++)
     {
         if (client_vect[i].getNick() == targetnick)
         {
-            target = &client_vect[i];
+            found = true;
             break;
         }
+    if(found == false)
+        {
+            client.getWriteBuffer() += "401 " + targetnick + " :No such nick\r\n";
+            return;
+        }
     }
-    if (!target)
-    {
-        client.getWriteBuffer() += "401 " + targetnick + " :No such nick\r\n";
-        return;
-    }
-    channel.processInvite(client, *target); // DELEGA al canale
+    it->second.processInvite(client, targetnick); // DELEGA al canale
 }
 
 
@@ -181,7 +174,7 @@ void Server::execTopic(Client& client, const std::vector<std::string>& params)//
 		" :No such channel\r\n";
         return;
     }
-	Channel	&ch = it->second; // da qui in poi parte di esecuzione
+	Channel	&ch = it->second;
     //se c'e solo il nome del canale stampa il topic
     if (params.size() == 1)
     {
@@ -205,7 +198,7 @@ void Server::execTopic(Client& client, const std::vector<std::string>& params)//
 			" :You're not on that channel\r\n";
 			return;
 		}
-        if (ch.isTopicRestricted() && !(ch.isOperator(&client)))//ERR_CHANOPRPRIVSNEEDED
+        if (ch.getTopicRestrict() && !(ch.isOperator(&client)))//ERR_CHANOPRPRIVSNEEDED
 		{
 			client.getWriteBuffer() += "482 " + client.getNick() + " " + channelName + 
 			" :You're not a channel operator\r\n";
@@ -220,6 +213,7 @@ void Server::execTopic(Client& client, const std::vector<std::string>& params)//
 
 
 
+void execPrivmsg(Client& client, const std::string& params); // PRIVMSG <destinatario> :<messaggio>
 //void execTopic(Client& client, const std::string& params); // TOPIC <#canale> :<nuovo topic>
 void execMode(Client& client, const std::string& params); // MODE <target> <modi> [parametri]
 void execKick(Client& client, const std::string& params); // KICK <#canale> <nickname> [motivo]
