@@ -139,7 +139,7 @@ void Server::execInvite(Client& client, const std::string& params) // INVITE <ni
             found = true;
             break;
         }
-    if(found == false)
+    	if (found == false)
         {
             client.getWriteBuffer() += "401 " + targetnick + " :No such nick\r\n";
             return;
@@ -149,68 +149,48 @@ void Server::execInvite(Client& client, const std::string& params) // INVITE <ni
 }
 
 
-void Server::execTopic(Client& client, const std::vector<std::string>& params)// TOPIC <#canale> :<nuovo topic>
+void Server::execTopic(Client& client, const std::string& params)
 {
-    size_t  i = 0;
-    bool    goodName = false;
-
-    if (params.empty())
-    {
+    if (params.empty()){
         client.getWriteBuffer() += "461 " + client.getNick() + " TOPIC :Not enough parameters\r\n";
         return;
     }
-    std::string channelName = params[0];
-    //se non esiste il canale
-    if (channelName.empty() || channelName[0] != '#')
-    {
-        client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
-		" :No such channel\r\n";
+    // Trova il primo spazio per separare canale dal resto
+    size_t spacePos = params.find(' ');
+    std::string channelName = params.substr(0, spacePos);
+    // Verifica che il nome del canale sia valido
+    if (channelName.empty() || channelName[0] != '#'){
+        client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + " :No such channel\r\n";
         return;
     }
     std::map<std::string, Channel>::iterator it = channels.find(channelName);
-	if (it == channels.end())
-    {
-        client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
-		" :No such channel\r\n";
+    if (it == channels.end()){
+        client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + " :No such channel\r\n";
         return;
     }
-	Channel	&ch = it->second;
-    //se c'e solo il nome del canale stampa il topic
-    if (params.size() == 1)
-    {
-		if (ch.getTopic().empty())// RPL_NOTOPIC (331)
-        {
-            client.getWriteBuffer() += "331 " + client.getNick() + " " + channelName + 
-			" :No topic is set\r\n";
-        }
-        else// RPL_TOPIC (332)
-        {
-            client.getWriteBuffer() += "332 " + client.getNick() + " " + channelName + 
-			" :" + ch.getTopic() + "\r\n";
-		}
+    Channel& ch = it->second;
+    size_t colonPos = params.find(':', spacePos);
+    // Se non c'è un nuovo topic → mostra il topic corrente
+    if (colonPos == std::string::npos){
+        if (ch.getTopic().empty())
+            client.getWriteBuffer() += "331 " + client.getNick() + " " + channelName + " :No topic is set\r\n";
+        else
+            client.getWriteBuffer() += "332 " + client.getNick() + " " + channelName + " :" + ch.getTopic() + "\r\n";
+        return;
     }
-    //piu di 1 parametro: Change/set the Topic (TOPIC #channel :new topic)
-    else 
-    {
-		if (!ch.isMember(&client))// ERR_NOTONCHANNEL
-		{
-			client.getWriteBuffer() += "442 " + client.getNick() + " " + channelName + 
-			" :You're not on that channel\r\n";
-			return;
-		}
-        if (ch.getTopicRestrict() && !(ch.isOperator(&client)))//ERR_CHANOPRPRIVSNEEDED
-		{
-			client.getWriteBuffer() += "482 " + client.getNick() + " " + channelName + 
-			" :You're not a channel operator\r\n";
-			return;
-		}
-        // change the topic and broadcast the change to everyone in the channel
-        ch.setTopic(params[1]);
-		std::string	msg = ":" + client.getPrefix() + " TOPIC " + channelName + " :" + params[1];
-		ch.broadcast(msg, NULL);
+    std::string newTopic = params.substr(colonPos + 1);
+    if (!ch.isMember(client)){
+        client.getWriteBuffer() += "442 " + client.getNick() + " " + channelName + " :You're not on that channel\r\n";
+        return;
     }
+    if (ch.getTopicRestrict() && !ch.isOperator(client)){
+        client.getWriteBuffer() += "482 " + client.getNick() + " " + channelName + " :You're not a channel operator\r\n";
+        return;
+    }
+    ch.setTopic(newTopic);
+    std::string msg = ":" + client.getPrefix() + " TOPIC " + channelName + " :" + newTopic + "\r\n";
+    ch.broadcast(msg, NULL);
 }
-
 
 /*
 PRIVMSG <destinatario> :<messaggio>
@@ -284,10 +264,83 @@ void Server::execMode(Client& client, const std::string& params){
 
 } // MODE <target> <modi> [parametri]
 
+
+/*
+when operatore fa "KICK #canale nickname :motivo"
+1. verifica esiste canale
+2. verificaa che chi fa kick sia l'operatore
+3. verifica che il target esiste e e' nel canale
+4. remove him
+5. boardcast it ":kicker!user@host KICK #canale target :motivo"
+
+formato comando:
+KICK #canale marco :Troppo spam
+
+fomato boardcast: 
+:marco!marco@192.168.1.5 KICK #canale luca :Troppo spam
+*/
 void Server::execKick(Client& client, const std::string& params){
-
-} // KICK <#canale> <nickname> [motivo]
-
+	if (params.empty()){
+		client.getWriteBuffer() += "461 KICK :Not enough parameters\r\n";
+        return ;
+	}
+	//separo primo spazio separa canale dal resto
+	size_t spacePos = params.find(' ');
+    if (spacePos == std::string::npos){
+        client.getWriteBuffer() += "461 KICK :Not enough parameters\r\n";
+        return ;
+    }
+	std::string channelName = params.substr(0, spacePos);
+    std::string rest = params.substr(spacePos + 1);
+	//separato nick da motivo
+	size_t spacePos2 = rest.find(' ');
+    std::string targetNick;
+    std::string reason;
+	if (spacePos2 == std::string::npos){
+		targetNick = rest;
+		reason = "No Reason";
+	}
+	else{
+		targetNick = rest.substr(0, spacePos2);
+		std::string reasonPart = rest.substr(spacePos2 + 1);
+		if (!reasonPart.empty() && reasonPart[0] == ':')
+			reason = reasonPart.substr(1);
+		else
+			reason = "No Reason";
+	}
+	std::map<std::string, Channel>::iterator it = channels.find(channelName);
+    if (it == channels.end()){
+        client.getWriteBuffer() += "403 " + channelName + " :No such channel\r\n";
+        return ;
+    }
+    Channel& channel = it->second;
+	if (!channel.isMember(client)){
+        client.getWriteBuffer() += "442 " + channelName + " :You're not on that channel\r\n";
+        return ;
+	}
+	if (!channel.isOperator(client)){
+        client.getWriteBuffer() += "482 " + channelName + " :You're not a channel operator\r\n";
+        return ;
+	}
+	Client* targetClient = NULL;
+	for (size_t i = 1; i < client_vect.size(); i++){
+		if (client_vect[i].getNick() == targetNick){
+			targetClient = &client_vect[i];
+			break ;
+		}
+	}
+	if (!targetClient){
+		client.getWriteBuffer() += "401 " + targetNick + " :No such nick\r\n";
+        return ;
+	}
+	if (!channel.isMember(*targetClient)){
+        client.getWriteBuffer() += "441 " + targetNick + " " + channelName + " :They aren't on that channel\r\n";
+        return ;
+	}
+	std::string kickMsg = ":" + client.getPrefix() + " KICK " + channelName + " " + targetNick + " :" + reason + "\r\n";
+	channel.broadcast(kickMsg, NULL);//broadcasto a tutti nel canale
+	channel.removeClient(*targetClient);//imuovo il target dal canale
+}
 
 /*
 il cliente se ne va via da se'. tutti must know who went away.

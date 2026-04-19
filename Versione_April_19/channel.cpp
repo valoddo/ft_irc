@@ -6,7 +6,7 @@
 /*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 22:14:52 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/19 15:14:30 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/19 16:52:44 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,23 +128,68 @@ void Channel::processInvite(Client& inviter, const std::string& target)
 }
         
     
-void processPrivmsg(Client& sender, const std::string& message){
-
+void Channel::processPrivmsg(Client& sender, const std::string& message){
+    std::string fullMsg = ":" + sender.getPrefix() + " PRIVMSG " + channel_name + " :" + message + "\r\n";
+    broadcast(fullMsg, &sender);//a tutti tranne mittente
 }
 
-void processTopic(Client& setter, const std::string& newTopic){
+/*
+di cosa parla il canale?
+TOPIC #canale (mostra topic corrente)
+TOPIC #canale :Nuovo topic (per cambiare topic)
+
+setter = il cliente vuole vedere o cambiare topic
+newTpocic = new topic, or empty if just wanna see
+*/
+void Channel::processTopic(Client& setter, const std::string& newTopic){
+	if (newTopic.empty()){//TOPIC #canale. 
+		if (topic.empty())
+			setter.getWriteBuffer() += " 331 " + setter.getNick() + " " + channel_name + " :No topic is set\r\n";
+			//331 theres no topic impostato
+		else
+			setter.getWriteBuffer() += "332 " + setter.getNick() + " " + channel_name + " :" + topic + "\r\n";
+			//mostra topic corrente
+		return ;
+	}
+	//se not empty then he wanna see topiuc
+	if (!isMember(setter)){
+        setter.getWriteBuffer() += "442 " + setter.getNick() + " " + channel_name + " :You're not on that channel\r\n";
+        return ;
+	}
+	//verifico i permessi, if modalita' +t, topic_restricted = modalita' +t del canale. se +t only operatore, if -t everyone
+    if (topic_restricted && !isOperator(setter)){
+        setter.getWriteBuffer() += "482 " + setter.getNick() + " " + channel_name + " :You're not a channel operator\r\n";
+        return ;
+    }
+	topic = newTopic;
+    // Broadcast del cambiamento
+    std::string msg = ":" + setter.getPrefix() + " TOPIC " + channel_name + " :" + newTopic + "\r\n";
+    broadcast(msg, NULL);
+}
+
+void Channel::processMode(Client& changer, const std::string& mode, const std::string& param){
     
 }
 
-void processMode(Client& changer, const std::string& mode, const std::string& param){
-    
+void Channel::processKick(Client& kicker, Client& target, const std::string& reason){
+    if (!isOperator(kicker)){
+        kicker.getWriteBuffer() += "482 " + channel_name + " :You're not a channel operator\r\n";
+        return;
+    }
+    if (!isMember(target)){
+        kicker.getWriteBuffer() += "441 " + target.getNick() + " " + channel_name + " :They aren't on that channel\r\n";
+        return;
+    }
+    std::string kickMsg = ":" + kicker.getPrefix() + " KICK " + channel_name + " " + target.getNick() + " :" + reason + "\r\n";
+    broadcast(kickMsg, NULL);
+    removeClient(target);
 }
 
-void processKick(Client& kicker, Client& target, const std::string& reason){
-    
-}
-
-void processQuit(Client& client, const std::string& quitMessage){
-    
+void Channel::processQuit(Client& client, const std::string& quitMessage){
+    if (!isMember(client))//if client not member do nothing
+        return ;
+    std::string quitMsg = ":" + client.getPrefix() + " QUIT :" + quitMessage + "\r\n";
+    broadcast(quitMsg, NULL);
+    removeClient(client);
 }
 

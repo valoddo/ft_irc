@@ -6,7 +6,7 @@
 /*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 18:06:03 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/19 15:14:20 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/19 17:48:52 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,6 @@ class Channel
 		void processMode(Client& changer, const std::string& mode, const std::string& param);
 		void processKick(Client& kicker, Client& target, const std::string& reason);
 		void processQuit(Client& client, const std::string& quitMessage);
-
-
 		void removeClient(Client& client);
 };
 
