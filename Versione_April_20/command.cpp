@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/20 16:32:12 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/20 20:40:14 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@ void Server::tryAuthenticate(Client& client)
     if (!server_password.empty() && client.getPass() != server_password) return;
     client.setAuthenticated(true);
     std::string nick = client.getNick();
-    client.getWriteBuffer() += ":ircserv 001 " + nick + " :Welcome to " + getName() + "  " + client.getPrefix() + "\r\n";
-    client.getWriteBuffer() += ":ircserv 002 " + nick + " :Your host is ircserv\r\n";
-    client.getWriteBuffer() += ":ircserv 003 " + nick + " :This server was created today\r\n";
-    client.getWriteBuffer() += ":ircserv 004 " + nick + " ircserv 1.0 o o\r\n";
+    client.getWriteBuffer() += ":" + getName() + " 001 " + nick + " :Welcome to " + getName() + "  " + client.getPrefix() + "\r\n";
+    client.getWriteBuffer() += ":" + getName() + " 002 " + nick + " :Your host is ircserv\r\n";
+    client.getWriteBuffer() += ":" + getName() + " 003 " + nick + " :This server was created today\r\n";
+    client.getWriteBuffer() += ":" + getName() + " 004 " + nick + " ircserv 1.0 o o\r\n";
     int fd = client.getClientFd();
     for (size_t i = 1; i < client_vect.size(); i++) {
         if (client_vect[i].getClientFd() == fd) {
@@ -98,7 +98,6 @@ void Server::execJoin(Client& client, const std::string& params) // JOIN <#canal
     size_t spacePos = params.find(' ');
     std::string channelName;
     std::string password;
-    
     if (spacePos == std::string::npos)
     {
         channelName = params; // Nessuno spazio trovato → solo il nome del canale, senza password
@@ -112,6 +111,11 @@ void Server::execJoin(Client& client, const std::string& params) // JOIN <#canal
     if (channelName.empty()) // Verifica che il channelName non sia vuoto
     {
         sendReply(client, "461 JOIN :Not enough parameters\r\n");
+        return;
+    }
+    if(channelName[0] != '#')
+    {
+        sendReply(client, "403 " + channelName + " :No such channel\r\n");
         return;
     }
     std::map<std::string, Channel>::iterator it = channels.find(channelName); // Crea il canale se non esiste
@@ -219,59 +223,55 @@ msg must be formatted
 
 */
 
-
-std::string Server::parsInizPrivmsg(Client& client, const std::string& params, std::string& fullMsg){
-	if (params.empty()){//if no command
-		sendReply(client, "411 :No recipient given\r\n");
-		return "";
-	}
-	size_t spacePos = params.find(' ');//first space to separare msg e destinatario
-	if (spacePos == std::string::npos){
-		sendReply(client, "412 :No text to send\r\n");
-		return "";
-	}
-	std::string target = params.substr(0, spacePos);//#canale or marco
-	std::string message = params.substr(spacePos + 1);//msg
-	if (!message.empty() && message[0] == ':')
-		message = message.substr(1);//message must strat with :
-	else {
-		sendReply(client, "412 :No text to send\r\n");
-		return "";
-	}//build msg to send
-	fullMsg = ":" + client.getPrefix() + " PRIVMSG " + target + " :" + message + "\r\n";
-	return target;
-}
-
-
-void Server::execPrivmsg(Client& client, const std::string& params){
-	std::string fullMsg;
-	std::string target = parsInizPrivmsg(client, params, fullMsg);
-    if (target.empty())
-        return ;
-	else if (target[0] == '#'){
-		std::map<std::string, Channel>::iterator it = channels.find(target);//search for channel
-		if (it == channels.end()) {
-			sendReply(client, "401 " + target + " :No such nick/channel\r\n");
-			return ;
-		}
-		//check if client is a member of channel
-		if (!it->second.isMember(client)){
-			sendReply(client, "404 " + target + " :Cannot send to channel\r\n");
-			return ;
-		}
-		it->second.broadcast(fullMsg, &client);
-	}
-	else
-    {
-		for (size_t i = 1; i < client_vect.size(); i++){
-			if (client_vect[i].getNick() == target){
-				client_vect[i].getWriteBuffer() += fullMsg;
-				poll_fds[i].events |= POLLOUT;
-				return ;
-			}
-		}
-		sendReply(client, "401 " + target + " :No such nick/channel\r\n");
-	}
+void Server::execPrivmsg(Client& client, const std::string& params)
+{
+    if (params.empty()) {
+        sendReply(client, "411 :No recipient given\r\n");
+        return;
+    }
+    size_t spacePos = params.find(' '); 
+    if (spacePos == std::string::npos) {
+        sendReply(client, ":inception 411 " + client.getNick() + " :No recipient given\r\n");
+        return;
+    }
+    std::string target = params.substr(0, spacePos);
+    if (target.empty()) {
+        sendReply(client, ":inception 411 " + client.getNick() + " :No recipient given\r\n");
+        return;
+    }
+    std::string message = params.substr(spacePos + 1);
+    if (message.empty()) {
+        sendReply(client, ":inception 412 " + client.getNick() + " :No text to send\r\n");
+        return;
+    }
+    if (message[0] == ':')
+        message = message.substr(1);
+    else {
+        sendReply(client, "412 :No text to send\r\n");
+        return;
+    }
+    std::string fullMsg = ":" + client.getPrefix() + " PRIVMSG " + target + " :" + message;
+    if (target[0] == '#') { // Caso canale
+        std::map<std::string, Channel>::iterator it = channels.find(target);
+        if (it == channels.end()) {
+            sendReply(client, ":inception 401 " + client.getNick() + " " + target + " :No such nick/channel\r\n");
+            return;
+        }
+        if (!it->second.isMember(client)) { // Verifica che il client sia membro del canale
+            sendReply(client, ":inception 404 " + client.getNick() + " " + target + " :Cannot send to channel\r\n");
+            return;
+        }
+        it->second.broadcast(fullMsg, &client); // Invia a tutti i membri tranne il mittente
+        return;
+    }
+    for (size_t i = 0; i < client_vect.size(); ++i) { // Caso nickname
+        if (client_vect[i].getNick() == target) {
+            client_vect[i].getWriteBuffer() += fullMsg;
+            poll_fds[i].events |= POLLOUT;
+            return;
+        }
+    }
+    sendReply(client, ":inception 401 " + client.getNick() + " " + target + " :No such nick/channel\r\n"); // Nessun destinatario trovato
 }
 
 //void execTopic(Client& client, const std::string& params); // TOPIC <#canale> :<nuovo topic>

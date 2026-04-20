@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 18:06:03 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/19 17:48:52 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/20 19:55:46 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ class Channel
 		
 		// Metodi pubblici per i comandi IRC
 		void processJoin(Client& client, const std::string& pass);  //con void processJoin(Client& client, const std::string& password = "") di default se il secondo parametro non esiste, viene impostato a vuoto
-		void processPrivmsg(Client& sender, const std::string& message);
 		void processInvite(Client& inviter, const std::string& target);
 		void processTopic(Client& setter, const std::string& newTopic);
 		void processMode(Client& changer, const std::string& mode, const std::string& param);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 22:14:52 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/20 17:02:44 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/20 19:55:34 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,18 +105,14 @@ void Channel::processJoin(Client& client, const std::string& pass) //con void pr
         return;        
     }
     if(isMember(client)){
-        
-        client.getWriteBuffer() += ":" + client.getPrefix() + " JOIN " + client.getNick() + "\r\n";
-        client.getWriteBuffer() += client.getNick() + " = " + client.getNick() + " :" + client.getNick() + "\r\n";
-        client.getWriteBuffer() += client.getNick() + " " + client.getNick() + " :End of /NAMES list\r\n";
+        client.getWriteBuffer() += ":inception 443 " + client.getNick() + " #" + getName() + " :is already on channel\r\n";
         return;
     }
     else{
         clients[&client] = false;
-        client.getWriteBuffer() += client.getPrefix() + " JOIN " + client.getNick() + "\r\n";
-        client.getWriteBuffer() += client.getNick() + " = " + client.getNick() + " :" + client.getNick() + "\r\n";
-        client.getWriteBuffer() += client.getNick() + " " + client.getNick() + " :End of /NAMES list\r\n";
-        return;
+        broadcast(":" + client.getPrefix() + " JOIN :" + getName(), NULL);
+        client.getWriteBuffer() += ":inception 353 " + client.getNick() + " = " + getName() + " :@" + client.getNick() + "\r\n";
+        client.getWriteBuffer() += ":inception 366 " + client.getNick() + " " + getName() + " :End of /NAMES list\r\n";
     }
 }
 
@@ -129,12 +125,6 @@ void Channel::processInvite(Client& inviter, const std::string& target)
         return;        
     }
     invited.push_back(target);
-}
-        
-    
-void Channel::processPrivmsg(Client& sender, const std::string& message){
-    std::string fullMsg = ":" + sender.getPrefix() + " PRIVMSG " + channel_name + " :" + message + "\r\n";
-    broadcast(fullMsg, &sender);//a tutti tranne mittente
 }
 
 /*
