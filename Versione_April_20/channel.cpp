@@ -6,7 +6,7 @@
 /*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 22:14:52 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/19 19:58:29 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/20 17:02:44 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,16 +104,22 @@ void Channel::processJoin(Client& client, const std::string& pass) //con void pr
         client.getWriteBuffer() += "473 " + client.getNick() + " " + channel_name + " :Cannot join channel (+i)\r\n";
         return;        
     }
-    if(isMember(client))
+    if(isMember(client)){
+        
+        client.getWriteBuffer() += ":" + client.getPrefix() + " JOIN " + client.getNick() + "\r\n";
+        client.getWriteBuffer() += client.getNick() + " = " + client.getNick() + " :" + client.getNick() + "\r\n";
+        client.getWriteBuffer() += client.getNick() + " " + client.getNick() + " :End of /NAMES list\r\n";
         return;
-    else
+    }
+    else{
         clients[&client] = false;
-    
+        client.getWriteBuffer() += client.getPrefix() + " JOIN " + client.getNick() + "\r\n";
+        client.getWriteBuffer() += client.getNick() + " = " + client.getNick() + " :" + client.getNick() + "\r\n";
+        client.getWriteBuffer() += client.getNick() + " " + client.getNick() + " :End of /NAMES list\r\n";
+        return;
+    }
 }
 
-
-
-		
         
 void Channel::processInvite(Client& inviter, const std::string& target)
 {

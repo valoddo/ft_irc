@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/20 15:24:49 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/20 16:32:12 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,16 +17,12 @@ void Server::tryAuthenticate(Client& client)
     if (client.isAuthenticated()) return;
     if (client.getNick().empty() || client.getUser().empty()) return;
     if (!server_password.empty() && client.getPass() != server_password) return;
-
     client.setAuthenticated(true);
-
     std::string nick = client.getNick();
     client.getWriteBuffer() += ":ircserv 001 " + nick + " :Welcome to " + getName() + "  " + client.getPrefix() + "\r\n";
     client.getWriteBuffer() += ":ircserv 002 " + nick + " :Your host is ircserv\r\n";
     client.getWriteBuffer() += ":ircserv 003 " + nick + " :This server was created today\r\n";
     client.getWriteBuffer() += ":ircserv 004 " + nick + " ircserv 1.0 o o\r\n";
-
-    // setta POLLOUT per il client
     int fd = client.getClientFd();
     for (size_t i = 1; i < client_vect.size(); i++) {
         if (client_vect[i].getClientFd() == fd) {
@@ -125,11 +121,11 @@ void Server::execJoin(Client& client, const std::string& params) // JOIN <#canal
         it = channels.find(channelName);
     }
     it->second.processJoin(client, password); // Ora processa il JOIN sul canale
-    if (it->second.isMember(client)) {
+    /*if (it->second.isMember(client)) {
         sendReply(client, ":" + client.getPrefix() + " JOIN " + channelName + "\r\n");
         sendReply(client, ":ircserv 353 " + client.getNick() + " = " + channelName + " :" + client.getNick() + "\r\n");
         sendReply(client, ":ircserv 366 " + client.getNick() + " " + channelName + " :End of /NAMES list\r\n");
-    }
+    }*/
 }
 
 void Server::execInvite(Client& client, const std::string& params) // INVITE <nickname> <#canale>

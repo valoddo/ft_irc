@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:12 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/20 15:18:58 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/20 15:53:40 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,8 +254,7 @@ void Server::run()
     std::cout << "Server running on port " << server_port << std::endl;
     for (;;)
     {
-        if (poll(&poll_fds[0], poll_fds.size(), -1) == -1)
-        {
+        if (poll(&poll_fds[0], poll_fds.size(), -1) == -1){
             std::cout << "poll failed" << std::endl;
             return;
         }
