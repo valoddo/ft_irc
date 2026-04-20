@@ -261,6 +261,8 @@ void Server::execPrivmsg(Client& client, const std::string& params){
 //void execTopic(Client& client, const std::string& params); // TOPIC <#canale> :<nuovo topic>
 
 void Server::execMode(Client& client, const std::string& params){
+    (void)client;
+    (void)params;
 
 } // MODE <target> <modi> [parametri]
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:19 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/19 21:11:12 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/20 15:20:06 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Server
 		void run();
 		void initServer();                // chiama setupServer
 		int setupServer(int port);        // privato
+		const std::string& getName() const;
 		
 		void acceptNewClient();           // usa i membri
 		bool handleClientRead(size_t i);  // i = indice in poll_fds

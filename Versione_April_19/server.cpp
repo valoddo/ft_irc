@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:12 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/19 15:05:03 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/19 20:40:17 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,6 +184,7 @@ void Server::processCommand(Client& client, const std::string& command)
     
     if (cmd == "PASS")
     {
+        std::cout << "Test PASS\n";
         execPass(client, params);
         return;
     }
@@ -251,6 +252,7 @@ void Server::run()
         {
             if (poll_fds[i].revents & POLLIN)
             {
+                std::cout << "TEST CONNESSIONE\n";
                 if (handleClientRead(i))
                     i--; // Se handleClientRead ha rimosso il client, l'indice i ora punta al prossimo, perchè il vettore si è rimpicciolito
             }

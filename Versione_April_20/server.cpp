@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:12 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/20 10:43:33 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/20 15:18:58 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,8 @@ int Server::setupServer(int port)
     }
     return (socket_fd);
 }
+
+const std::string& Server::getName() const{return(server_name);}
 
 void Server::acceptNewClient()
 {

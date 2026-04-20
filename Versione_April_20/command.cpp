@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/20 10:30:21 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/20 15:24:49 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void Server::tryAuthenticate(Client& client)
     client.setAuthenticated(true);
 
     std::string nick = client.getNick();
-    client.getWriteBuffer() += ":ircserv 001 " + nick + " :Welcome to ft_irc " + client.getPrefix() + "\r\n";
+    client.getWriteBuffer() += ":ircserv 001 " + nick + " :Welcome to " + getName() + "  " + client.getPrefix() + "\r\n";
     client.getWriteBuffer() += ":ircserv 002 " + nick + " :Your host is ircserv\r\n";
     client.getWriteBuffer() += ":ircserv 003 " + nick + " :This server was created today\r\n";
     client.getWriteBuffer() += ":ircserv 004 " + nick + " ircserv 1.0 o o\r\n";

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 22:14:52 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/19 16:52:44 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/19 18:29:10 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,6 +168,9 @@ void Channel::processTopic(Client& setter, const std::string& newTopic){
 }
 
 void Channel::processMode(Client& changer, const std::string& mode, const std::string& param){
+    (void)changer;
+    (void)mode;
+    (void)param;
     
 }
 
