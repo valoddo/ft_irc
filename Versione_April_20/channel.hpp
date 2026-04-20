@@ -6,7 +6,7 @@
 /*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 18:06:03 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/20 19:55:46 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/20 21:16:58 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <string.h>
 #include <vector>
 #include <map>
+#include <sstream>
 
 class Channel
 {
@@ -33,6 +34,8 @@ class Channel
 		bool 							invite_only;	// modalita' +i: se true(+i) nessuno puo entrare con JOIN se non invitato, se false(nessun +i) chiunque puo fare JOIN 
 		bool 							topic_restricted; // modalita' +t: se true(+t) solo utenti con @ possono usare TOPIC per cambiare topic, se false(nessun +t) tutti possono cambiare topic
 
+		std::string						getModes();
+		
 	public:
 		Channel();
 		Channel(const std::string& name);
@@ -47,6 +50,7 @@ class Channel
 		void setName(const std::string& name);
 		void setTopic(const std::string& topic);
 		void setPass(const std::string& pass);
+		void setClientOp(Client& commander, std::string targetName, char flagSign);
 
 		// Metodi di utility
 		bool isMember(Client& client) const;
@@ -59,7 +63,7 @@ class Channel
 		void processJoin(Client& client, const std::string& pass);  //con void processJoin(Client& client, const std::string& password = "") di default se il secondo parametro non esiste, viene impostato a vuoto
 		void processInvite(Client& inviter, const std::string& target);
 		void processTopic(Client& setter, const std::string& newTopic);
-		void processMode(Client& changer, const std::string& mode, const std::string& param);
+		void processMode(Client& client, const std::vector<std::string>& param);
 		void processKick(Client& kicker, Client& target, const std::string& reason);
 		void processQuit(Client& client, const std::string& quitMessage);
 		void removeClient(Client& client);

@@ -6,7 +6,7 @@
 /*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:19 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/20 15:20:06 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/20 21:17:52 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,8 @@ class Server
 		void execPrivmsg(Client& client, const std::string& params); // PRIVMSG <destinatario> :<messaggio>
 		void execInvite(Client& client, const std::string& params); // INVITE <nickname> <#canale>
         //void execTopic(Client &client, const std::vector<std::string> &params);
-        void execTopic(Client &client, const std::string &params); // TOPIC <#canale> :<nuovo topic>
-        void execMode(Client& client, const std::string& params); // MODE <target> <modi> [parametri]
+        void execTopic(Client &client, std::string &params); // TOPIC <#canale> :<nuovo topic>
+        void execMode(Client& client, std::string& params); // MODE <target> <modi> [parametri]
 		void execKick(Client& client, const std::string& params); // KICK <#canale> <nickname> [motivo]
 		void execQuit(Client& client, const std::string& params); // QUIT [messaggio]
 

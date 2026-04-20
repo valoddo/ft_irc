@@ -6,7 +6,7 @@
 /*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/20 20:40:14 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/20 21:18:27 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,11 +125,6 @@ void Server::execJoin(Client& client, const std::string& params) // JOIN <#canal
         it = channels.find(channelName);
     }
     it->second.processJoin(client, password); // Ora processa il JOIN sul canale
-    /*if (it->second.isMember(client)) {
-        sendReply(client, ":" + client.getPrefix() + " JOIN " + channelName + "\r\n");
-        sendReply(client, ":ircserv 353 " + client.getNick() + " = " + channelName + " :" + client.getNick() + "\r\n");
-        sendReply(client, ":ircserv 366 " + client.getNick() + " " + channelName + " :End of /NAMES list\r\n");
-    }*/
 }
 
 void Server::execInvite(Client& client, const std::string& params) // INVITE <nickname> <#canale>
@@ -166,47 +161,103 @@ void Server::execInvite(Client& client, const std::string& params) // INVITE <ni
 }
 
 
-void Server::execTopic(Client& client, const std::string& params)
+
+static  std::vector<std::string> extractTokens(const std::string& input)
 {
-    if (params.empty()){
-        sendReply(client,  "461 " + client.getNick() + " TOPIC :Not enough parameters\r\n");
+	std::vector<std::string> 	tokens;
+	std::string					token;
+	std::stringstream			ss(input);
+
+	while (ss >> token)
+	{
+		tokens.push_back(token);
+	}
+	return (tokens);
+}
+
+static  std::vector<std::string>    littelParsing(std::string& parameters)
+{
+	size_t		pos;
+	std::string	msg;
+	bool		hasMsg = false;
+    std::vector<std::string>    result;
+	
+	pos = parameters.find(":");
+	if (pos != std::string::npos)
+	{//divide in due eliminando i :
+		msg = parameters.substr(pos + 1);
+		parameters = parameters.substr(0, pos);
+		hasMsg = true;
+	}
+	result = extractTokens(parameters);
+	if (hasMsg)
+		result.push_back(msg);
+	return (result);
+}
+
+void    Server::execTopic(Client &client, std::string &params) // TOPIC <#canale> :<nuovo topic>
+{
+    std::vector<std::string>    parameters;
+    //size_t                      i = 0;
+    //bool                        goodName = false;
+
+    parameters = littelParsing(params);
+    if (parameters.empty())//461 ERR_NEEDMOREPARAMS
+    {
+        client.getWriteBuffer() += "461 " + client.getNick() + " TOPIC :Not enough parameters\r\n";
         return;
     }
-    // Trova il primo spazio per separare canale dal resto
-    size_t spacePos = params.find(' ');
-    std::string channelName = params.substr(0, spacePos);
-    // Verifica che il nome del canale sia valido
-    if (channelName.empty() || channelName[0] != '#'){
-        sendReply(client,  "403 " + client.getNick() + " " + channelName + " :No such channel\r\n");
+    std::string channelName = parameters[0];
+    //se non esiste il canale
+    if (channelName.empty() || channelName[0] != '#')
+    {
+        client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
+		" :No such channel\r\n";//manca ": servername " all'inizio del msg
         return;
     }
     std::map<std::string, Channel>::iterator it = channels.find(channelName);
-    if (it == channels.end()){
-        sendReply(client, "403 " + client.getNick() + " " + channelName + " :No such channel\r\n");
+	if (it == channels.end())
+    {
+        client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
+		" :No such channel\r\n";//manca ": servername " all'inizio del msg
         return;
     }
-    Channel& ch = it->second;
-    size_t colonPos = params.find(':', spacePos);
-    // Se non c'è un nuovo topic → mostra il topic corrente
-    if (colonPos == std::string::npos){
-        if (ch.getTopic().empty())
-            sendReply(client, "331 " + client.getNick() + " " + channelName + " :No topic is set\r\n");
-        else
-            sendReply(client, "332 " + client.getNick() + " " + channelName + " :" + ch.getTopic() + "\r\n");
-        return;
+	Channel	&ch = it->second;
+    //se c'e solo il nome del canale stampa il topic
+    if (parameters.size() == 1)
+    {
+		if (ch.getTopic().empty())// RPL_NOTOPIC (331)
+        {
+            client.getWriteBuffer() += "331 " + client.getNick() + " " + channelName + 
+			" :No topic is set\r\n";
+        }
+        else// RPL_TOPIC (332)
+        {
+            client.getWriteBuffer() += "332 " + client.getNick() + " " + channelName + 
+			" :" + ch.getTopic() + "\r\n";
+		}
     }
-    std::string newTopic = params.substr(colonPos + 1);
-    if (!ch.isMember(client)){
-        sendReply(client, "442 " + client.getNick() + " " + channelName + " :You're not on that channel\r\n");
-        return;
+    //piu di 1 parametro: Change/set the Topic (TOPIC #channel :new topic)
+    else 
+    {
+		if (!ch.isMember(client))// ERR_NOTONCHANNEL
+		{
+			client.getWriteBuffer() += "442 " + client.getNick() + " " + channelName + 
+			" :You're not on that channel\r\n";
+			return;
+		}
+        if (ch.getTopicRestrict() && !(ch.isOperator(client)))//ERR_CHANOPRPRIVSNEEDED
+		{
+			client.getWriteBuffer() += "482 " + client.getNick() + " " + channelName + 
+			" :You're not a channel operator\r\n";
+			return;
+		}
+        // change the topic and broadcast the change to everyone in the channel
+        ch.setTopic(parameters[1]);
+        //>> :cacorreaa!~carolina@185.30.66.235 TOPIC #my42irc :papere
+		std::string	msg = ":" + client.getPrefix() + " TOPIC " + channelName + " :" + params[1];
+		ch.broadcast(msg, NULL);
     }
-    if (ch.getTopicRestrict() && !ch.isOperator(client)){
-        sendReply(client, "482 " + client.getNick() + " " + channelName + " :You're not a channel operator\r\n");
-        return;
-    }
-    ch.setTopic(newTopic);
-    std::string msg = ":" + client.getPrefix() + " TOPIC " + channelName + " :" + newTopic + "\r\n";
-    ch.broadcast(msg, NULL);
 }
 
 /*
@@ -274,17 +325,58 @@ void Server::execPrivmsg(Client& client, const std::string& params)
     sendReply(client, ":inception 401 " + client.getNick() + " " + target + " :No such nick/channel\r\n"); // Nessun destinatario trovato
 }
 
-//void execTopic(Client& client, const std::string& params); // TOPIC <#canale> :<nuovo topic>
 
-void Server::execMode(Client& client, const std::string& params){
-    (void)client;
-    (void)params;
-    
+//manca il localhost all'inizio dei messaggi (server name)
+void Server::execMode(Client& client, std::string& params)// MODE <channel> [modi] [parametri]
+{
+    std::vector<std::string>    parameters;
 
-} // MODE <target> <modi> [parametri]
+    parameters = littelParsing(params);
+    if (params.empty())//461 ERR_NEEDMOREPARAMS
+    {
+        client.getWriteBuffer() += "461 " + client.getNick() + " MODE :Not enough parameters\r\n";
+        return;
+    }
+    if (parameters.size() >= 1)
+    {
+        std::string channelName = parameters[0];
+        //se non esiste il canale
+        if (channelName.empty() || channelName[0] != '#')
+        {
+            client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
+            " :No such channel\r\n";
+            return;
+        }
+        std::map<std::string, Channel>::iterator it = channels.find(channelName);
+        if (it == channels.end())
+        {
+            client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
+            " :No such channel\r\n";
+            return;
+        }
+        Channel& ch = it->second;
+        ch.processMode(client, parameters);
+    }
+} 
+
+
+
+/* The commands which may only be used by channel operators are:
+        KICK    - Eject a client from the channel
+        MODE    - Change the channel's mode
+        INVITE  - Invite a client to an invite-only channel (mode +i)
+        TOPIC   - Change the channel topic in a mode +t channel
+i: Set/remove Invite-only channel                                               1 param
+t: Set/remove the restrictions of the TOPIC command to channel operators        1 param
+k: Set/remove the channel key (password)                                        2 param
+o: Give/take channel operator privilege                                         2 param
+l: Set/remove the user limit to channel                                         2 param
+
+*/
 
 
 /*
+
 when operatore fa "KICK #canale nickname :motivo"
 1. verifica esiste canale
 2. verificaa che chi fa kick sia l'operatore
@@ -298,6 +390,7 @@ KICK #canale marco :Troppo spam
 fomato boardcast: 
 :marco!marco@192.168.1.5 KICK #canale luca :Troppo spam
 */
+
 void Server::execKick(Client& client, const std::string& params){
 	if (params.empty()){
 		sendReply(client, "461 KICK :Not enough parameters\r\n");
