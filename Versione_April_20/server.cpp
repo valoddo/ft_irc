@@ -6,7 +6,7 @@
 /*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:12 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/19 20:49:29 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/20 10:43:33 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,12 @@ void Server::sendReply(Client& client, const std::string& msg)
 
 Server::Server(const std::string& port, const std::string& password)
 {
+    server_name = "inception";
     server_port = port;
     server_password = password;
     socket_fd = -1;
     int port_int = std::atoi(port.c_str()); // Inizializza il server (chiama setupServer)
-    if (setupServer(port_int) == -1)
-    {
+    if (setupServer(port_int) == -1){
         std::cerr << "Failed to initialize server" << std::endl;
         return ;
     }
@@ -39,10 +39,10 @@ Server::Server(const std::string& port, const std::string& password)
     server_pollfd.fd = socket_fd;
     server_pollfd.events = POLLIN;
     poll_fds.push_back(server_pollfd);
+    client_vect.push_back(Client());//ora poll fds e clent vect son sincro 
 }
 
-Server::~Server()
-{
+Server::~Server(){
     if (socket_fd != -1)
         close(socket_fd);
     for (size_t i = 0; i < poll_fds.size(); i++)
@@ -52,8 +52,7 @@ Server::~Server()
 int Server::setupServer(int port)
 {
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_fd == -1)
-    {
+    if (socket_fd == -1){
         std::cout << "socket failed" << std::endl;
         return -1;
     }
@@ -64,18 +63,15 @@ int Server::setupServer(int port)
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
     address.sin_addr.s_addr = INADDR_ANY;
-    if (bind(socket_fd, (struct sockaddr*)&address, sizeof(address)) == -1)
-    {
+    if (bind(socket_fd, (struct sockaddr*)&address, sizeof(address)) == -1){
         std::cout << "bind failed" << std::endl;
         return -1;
     }
-    if (listen(socket_fd, 10) == -1)
-    {
+    if (listen(socket_fd, 10) == -1){
         std::cout << "listen failed" << std::endl;
         return -1;
     }
-    if (fcntl(socket_fd, F_SETFL, O_NONBLOCK) == -1)
-    {
+    if (fcntl(socket_fd, F_SETFL, O_NONBLOCK) == -1){
         std::cout << "blocking fd didnt succeed" << std::endl;
         return -1;
     }
@@ -87,13 +83,11 @@ void Server::acceptNewClient()
     struct sockaddr_in client_addr;
     socklen_t addr_size = sizeof(client_addr);
     int client_socket = accept(socket_fd, (struct sockaddr*)&client_addr, &addr_size);
-    if (client_socket == -1)
-    {
+    if (client_socket == -1){
         std::cout << "accept failed" << std::endl;
         return;
     }
-    if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == -1)
-    {
+    if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == -1){
         std::cout << "blocking fd didnt succeed" << std::endl;
         close(client_socket);
         return;
@@ -109,7 +103,6 @@ void Server::acceptNewClient()
     client_pollfd.fd = client_socket;
     client_pollfd.events = POLLIN;
     poll_fds.push_back(client_pollfd);
-    
     std::cout << "New client connected: " << clientIP << " fd=" << client_socket << std::endl;
 }
 
@@ -147,16 +140,12 @@ bool Server::handleClientRead(size_t i) //Legge dati dal client (riceve messaggi
     bytes_letti = recv(poll_fds[i].fd, buffer, 512, 0);
     if (bytes_letti > 0)
     {
-        if (i >= client_vect.size()) return true;
+        if (i >= client_vect.size())
+            return true;
         buffer[bytes_letti] = '\0';
-        std::cout << "ricevuto da client " << i << ": " << buffer << std::endl;
-        std::cout << "DEBUG 1, i=" << i << " size=" << client_vect.size() << std::endl;
         client_vect[i].getReadBuffer() += buffer;
-        std::cout << "DEBUG 2" << std::endl;
         std::string localBuf = client_vect[i].getReadBuffer();
-        std::cout << "DEBUG 3" << std::endl;
         client_vect[i].getReadBuffer().clear();
-        std::cout << "DEBUG 4" << std::endl;
         while (true)
         {
             size_t pos = localBuf.find("\r\n");
@@ -164,10 +153,9 @@ bool Server::handleClientRead(size_t i) //Legge dati dal client (riceve messaggi
             break;
             std::string command = localBuf.substr(0, pos);
             localBuf.erase(0, pos + 2);
-            std::cout << "Comando completo: " << command << std::endl;
+            //debug: std::cout << "Comando completo: " << command << std::endl;
             int fd = client_vect[i].getClientFd();
             processCommand(client_vect[i], command);
-            std::cout << "DEBUG dopo processCommand" << std::endl;
             if (i >= client_vect.size() || client_vect[i].getClientFd() != fd)
                 return true;
             }
@@ -204,11 +192,9 @@ void Server::processCommand(Client& client, const std::string& command)
     if (spacePos != std::string::npos)
         params = command.substr(spacePos + 1);
     if (cmd == "CAP"){
-        if (params == "LS 302" || params == "LS")
-            sendReply(client, ":ircserv CAP * LS :\r\n");
-        else if (params == "END")
-            ; // non fare niente, CAP END significa "ho finito la negoziazione"
-        return;
+        if (params.find("LS") == 0)
+            sendReply(client, ":" + server_name + " CAP * LS :\r\n");
+        return ;
     }
     if (cmd == "PASS")
     {

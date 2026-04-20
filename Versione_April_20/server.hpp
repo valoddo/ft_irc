@@ -6,7 +6,7 @@
 /*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:19 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/19 19:52:20 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/19 21:11:12 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@
 class Server
 {
 	private:
+		std::string 				server_name;
 		std::vector<struct pollfd>	poll_fds;
 		std::vector<Client>			client_vect;
 		std::map<std::string, Channel> channels; // mappa il nome del canale all'oggetto Channel

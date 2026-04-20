@@ -6,7 +6,7 @@
 /*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/19 20:56:42 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/20 10:30:21 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,13 +76,11 @@ void Server::execNick(Client& client, const std::string& params) // NICK <nickna
 
 void Server::execUser(Client& client, const std::string& params) // USER <username> <hostname> <servername> :<realname>
 {
-    if (params.empty())
-    {
+    if (params.empty()){
         sendReply(client, "461 USER :Not enough parameters\r\n");
         return;
     }
-	if (!client.getUser().empty())
-    {
+	if (!client.getUser().empty()){
         sendReply(client, "462 :You may not reregister\r\n");
         return;
     }
@@ -90,7 +88,7 @@ void Server::execUser(Client& client, const std::string& params) // USER <userna
     std::string username = params;
     if (spacePos != std::string::npos)
         username = params.substr(0, spacePos);
-    client.setUser(params);
+    client.setUser(username);
 	tryAuthenticate(client);
 }
 
