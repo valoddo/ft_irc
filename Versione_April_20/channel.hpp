@@ -3,24 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 18:06:03 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/20 21:16:58 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/21 15:03:02 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
-#define CHANNEL_HPP
+# define CHANNEL_HPP
 
-#include "client.hpp"
+# include "client.hpp"
 
-#include <iostream>
-#include <unistd.h>
-#include <string.h>
-#include <vector>
-#include <map>
-#include <sstream>
+# include <iostream>
+# include <unistd.h>
+# include <string.h>
+# include <vector>
+# include <map>
+# include <sstream>
 
 class Channel
 {

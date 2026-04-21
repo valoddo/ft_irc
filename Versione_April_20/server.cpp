@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:12 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/20 15:53:40 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/21 15:04:45 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ Server::Server(const std::string& port, const std::string& password)
     server_pollfd.fd = socket_fd;
     server_pollfd.events = POLLIN;
     poll_fds.push_back(server_pollfd);
-    client_vect.push_back(Client());//ora poll fds e clent vect son sincro 
+    client_vect.push_back(Client());//ora poll fds e client vect son sincro 
 }
 
 Server::~Server(){
@@ -152,10 +152,10 @@ bool Server::handleClientRead(size_t i) //Legge dati dal client (riceve messaggi
         {
             size_t pos = localBuf.find("\r\n");
             if (pos == std::string::npos)
-            break;
+                break;
             std::string command = localBuf.substr(0, pos);
             localBuf.erase(0, pos + 2);
-            //debug: std::cout << "Comando completo: " << command << std::endl;
+             std::cout << "debug: Comando completo: " << command << std::endl;
             int fd = client_vect[i].getClientFd();
             processCommand(client_vect[i], command);
             if (i >= client_vect.size() || client_vect[i].getClientFd() != fd)
@@ -233,7 +233,9 @@ void Server::processCommand(Client& client, const std::string& command)
     else if (cmd == "QUIT")
         execQuit(client, params);
     else
-        sendReply(client, "421 " + cmd + " :Unknown command\r\n");
+        sendReply(client, "421 " + client.getNick() + " " + cmd + " :Unknown command\r\n");//aggiunto il nickname
+
+//>> :iridium.libera.chat 421 otherr privmas :Unknown command  quando il msg arriva dal server deve cominciare con :servername
 }
 
 void Server::sendToClient(int client_fd, const std::string& message)

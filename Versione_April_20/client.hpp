@@ -3,28 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 13:34:58 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/19 20:26:28 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/21 15:02:34 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
-#define CLIENT_HPP
+# define CLIENT_HPP
 
-#include <iostream>
-#include <string>
-#include <unistd.h>
-#include <cstring>
-#include <sys/socket.h> //funzioni socket: socket(), connect(), send(), recv()
-#include <arpa/inet.h>  // funzioni indirizzi IP: sockaddr_in, inet_addr, htons
+# include <iostream>
+# include <string>
+# include <unistd.h>
+# include <cstring>
+# include <sys/socket.h> //funzioni socket: socket(), connect(), send(), recv()
+# include <arpa/inet.h>  // funzioni indirizzi IP: sockaddr_in, inet_addr, htons
 
 class Client
 {
 	private:
 		int			client_fd; // socket individuato come fd, ogni client ha un socket proprio
-		std::string client_ip; // IP del client
+		std::string	client_ip; // IP del client
 		std::string pass_client; // password client
 		std::string nickname; // nome visibile in chat, unico nel server
 		std::string username; // identificatore "tecnica" dell'utente

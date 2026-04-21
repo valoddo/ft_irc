@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/20 21:18:27 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/21 15:11:00 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ void Server::execJoin(Client& client, const std::string& params) // JOIN <#canal
         return;
     }
     if(channelName[0] != '#')
-    {
+	{
         sendReply(client, "403 " + channelName + " :No such channel\r\n");
         return;
     }
@@ -204,22 +204,23 @@ void    Server::execTopic(Client &client, std::string &params) // TOPIC <#canale
     parameters = littelParsing(params);
     if (parameters.empty())//461 ERR_NEEDMOREPARAMS
     {
-        client.getWriteBuffer() += "461 " + client.getNick() + " TOPIC :Not enough parameters\r\n";
+        client.getWriteBuffer() += ":" + server_name + " 461 " + client.getNick() 
+            + " TOPIC :Not enough parameters\r\n";
         return;
     }
     std::string channelName = parameters[0];
-    //se non esiste il canale
+    //se non esiste il canale 403 ERR_NOSUCHCHANNEL
     if (channelName.empty() || channelName[0] != '#')
     {
-        client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
-		" :No such channel\r\n";//manca ": servername " all'inizio del msg
+        client.getWriteBuffer() += ":" + server_name + " 403 " + client.getNick() 
+            + " " + channelName + " :No such channel\r\n";
         return;
     }
     std::map<std::string, Channel>::iterator it = channels.find(channelName);
 	if (it == channels.end())
     {
-        client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
-		" :No such channel\r\n";//manca ": servername " all'inizio del msg
+        client.getWriteBuffer() += ":" + server_name + " 403 " + client.getNick() 
+            + " " + channelName + " :No such channel\r\n";
         return;
     }
 	Channel	&ch = it->second;
@@ -228,34 +229,34 @@ void    Server::execTopic(Client &client, std::string &params) // TOPIC <#canale
     {
 		if (ch.getTopic().empty())// RPL_NOTOPIC (331)
         {
-            client.getWriteBuffer() += "331 " + client.getNick() + " " + channelName + 
-			" :No topic is set\r\n";
+            client.getWriteBuffer() += ":" + server_name + " 331 " + client.getNick() 
+            + " " + channelName + " :No topic is set\r\n";
         }
         else// RPL_TOPIC (332)
         {
-            client.getWriteBuffer() += "332 " + client.getNick() + " " + channelName + 
-			" :" + ch.getTopic() + "\r\n";
+            client.getWriteBuffer() += ":" + server_name + " 332 " + client.getNick() 
+            + " " + channelName + " :" + ch.getTopic() + "\r\n";
 		}
     }
     //piu di 1 parametro: Change/set the Topic (TOPIC #channel :new topic)
     else 
     {
-		if (!ch.isMember(client))// ERR_NOTONCHANNEL
+		if (!ch.isMember(client))//442 ERR_NOTONCHANNEL
 		{
-			client.getWriteBuffer() += "442 " + client.getNick() + " " + channelName + 
-			" :You're not on that channel\r\n";
+			client.getWriteBuffer() += ":" + server_name + " 442 " + client.getNick() 
+                + " " + channelName + " :You're not on that channel\r\n";
 			return;
 		}
-        if (ch.getTopicRestrict() && !(ch.isOperator(client)))//ERR_CHANOPRPRIVSNEEDED
+        if (ch.getTopicRestrict() && !(ch.isOperator(client)))//482 ERR_CHANOPRPRIVSNEEDED
 		{
-			client.getWriteBuffer() += "482 " + client.getNick() + " " + channelName + 
-			" :You're not a channel operator\r\n";
+			client.getWriteBuffer() += ":" + server_name + " 482 " + client.getNick() 
+				+ " " + channelName + " :You're not a channel operator\r\n";
 			return;
 		}
         // change the topic and broadcast the change to everyone in the channel
         ch.setTopic(parameters[1]);
         //>> :cacorreaa!~carolina@185.30.66.235 TOPIC #my42irc :papere
-		std::string	msg = ":" + client.getPrefix() + " TOPIC " + channelName + " :" + params[1];
+		std::string	msg = ":" + client.getPrefix() + " TOPIC " + channelName + " :" + ch.getTopic();
 		ch.broadcast(msg, NULL);
     }
 }
@@ -334,7 +335,8 @@ void Server::execMode(Client& client, std::string& params)// MODE <channel> [mod
     parameters = littelParsing(params);
     if (params.empty())//461 ERR_NEEDMOREPARAMS
     {
-        client.getWriteBuffer() += "461 " + client.getNick() + " MODE :Not enough parameters\r\n";
+        client.getWriteBuffer() += ":" + server_name + " 461 " + client.getNick() 
+			+ " MODE :Not enough parameters\r\n";
         return;
     }
     if (parameters.size() >= 1)
@@ -343,15 +345,15 @@ void Server::execMode(Client& client, std::string& params)// MODE <channel> [mod
         //se non esiste il canale
         if (channelName.empty() || channelName[0] != '#')
         {
-            client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
-            " :No such channel\r\n";
+            client.getWriteBuffer() += ":" + server_name + " 403 " + client.getNick() 
+				+ " " + channelName + " :No such channel\r\n";
             return;
         }
         std::map<std::string, Channel>::iterator it = channels.find(channelName);
         if (it == channels.end())
         {
-            client.getWriteBuffer() += "403 " + client.getNick() + " " + channelName + 
-            " :No such channel\r\n";
+            client.getWriteBuffer() += ":" + server_name + " 403 " + client.getNick()
+				 + " " + channelName + " :No such channel\r\n";
             return;
         }
         Channel& ch = it->second;

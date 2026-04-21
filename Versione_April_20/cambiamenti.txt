@@ -1,0 +1,26 @@
+righe cambiate: server.cpp line 236
+
+
+
+
+
+
+
+
+
+
+
+
+DA FARE?
+
+433 :Nickname already in use   manca qualcosa?
+
+
+Quando un fa QUIT a gli altri nel canale arriva questo messaggio:
+privmsg #mare :sara!sel-khao@127.0.0.1 QUIT :Quit
+dovrebbe arrivare questo:
+>> @time=2026-04-21T10:23:55.144Z :caro!~carolina@185.30.66.235 QUIT :Quit: Leaving
+
+ERRORI
+quando join un channel che non esiste lo crei e li dai i privileggi di operator
+
