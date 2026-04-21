@@ -6,7 +6,7 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 22:14:52 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/21 17:34:41 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/21 20:24:21 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,14 +120,17 @@ void Channel::processJoin(Client& client, const std::string& pass, const std::st
 }
 
         
-void Channel::processInvite(Client& inviter, const std::string& target)
+void Channel::processInvite(Client& inviter, Client& target)
 {
     if(getInviteOnly() && !isOperator(inviter))
     {
         inviter.getWriteBuffer() += "482 " + getName() + ":You’re not channel operator\r\n";
         return;        
     }
-    invited.push_back(target);
+    invited.push_back(target.getNick());
+	//inviter.getWriteBuffer() += inviter.getPrefix() + " INVITE " + target + " :" + getName() + "\r\n"; //messaggio per il destinatario
+	inviter.getWriteBuffer() += "341 " + inviter.getNick() + " " + target.getNick() + " :" + getName() + "\r\n";
+	target.getWriteBuffer() += ":" + inviter.getPrefix() + " INVITE " + target.getNick() + " :" + getName() + "\r\n";
 }
 
 /*
@@ -186,8 +189,7 @@ void Channel::processMode(Client& client, const std::vector<std::string>& param)
 		}
 		if (isMember(client) && (modes.find('k') != std::string::npos))
 			modes += " " + getPass();
-		client.getWriteBuffer() += "324 " + client.getNick() + " " + channel_name + " "
-		+ modes + "\r\n";
+		client.getWriteBuffer() += "324 " + client.getNick() + " " + channel_name + " :" + modes + "\r\n";
 		return;
 	}
 	std::string modes = param[1];

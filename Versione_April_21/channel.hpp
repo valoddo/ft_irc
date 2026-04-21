@@ -6,7 +6,7 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 18:06:03 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/21 17:33:01 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/21 19:56:27 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ class Channel
 		
 		// Metodi pubblici per i comandi IRC
 		void processJoin(Client& client, const std::string& pass, const std::string& server_name);  //con void processJoin(Client& client, const std::string& password = "") di default se il secondo parametro non esiste, viene impostato a vuoto
-		void processInvite(Client& inviter, const std::string& target);
+		void processInvite(Client& inviter, Client& target);
 		void processTopic(Client& setter, const std::string& newTopic);
 		void processMode(Client& client, const std::vector<std::string>& param);
 		void processKick(Client& kicker, Client& target, const std::string& reason);

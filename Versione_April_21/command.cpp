@@ -6,7 +6,7 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/21 17:37:16 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/21 20:04:33 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,7 @@ void Server::execInvite(Client& client, const std::string& params) // INVITE <ni
         return;
     }
     bool found = false;
+    std::vector<Client>::iterator it_client = client_vect.begin();
     for (size_t i = 0; i < client_vect.size(); i++)
     {
         if (client_vect[i].getNick() == targetnick)
@@ -153,12 +154,13 @@ void Server::execInvite(Client& client, const std::string& params) // INVITE <ni
             found = true;
             break ;
         }
+        it_client++;
     }
 	if (!found){
         sendReply(client,  "401 " + targetnick + " :No such nick\r\n");
         return;
     }
-    it->second.processInvite(client, targetnick); // DELEGA al canale
+    it->second.processInvite(client, *it_client); // DELEGA al canale
 }
 
 
@@ -413,7 +415,7 @@ void Server::execKick(Client& client, const std::string& params){
     std::string reason;
 	if (spacePos2 == std::string::npos){
 		targetNick = rest;
-		reason = "No Reason";
+		reason = client.getNick();
 	}
 	else{
 		targetNick = rest.substr(0, spacePos2);
@@ -421,7 +423,7 @@ void Server::execKick(Client& client, const std::string& params){
 		if (!reasonPart.empty() && reasonPart[0] == ':')
 			reason = reasonPart.substr(1);
 		else
-			reason = "No Reason";
+			reason = client.getNick();
 	}
 	std::map<std::string, Channel>::iterator it = channels.find(channelName);
     if (it == channels.end()){
