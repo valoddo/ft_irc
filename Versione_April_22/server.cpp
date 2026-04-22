@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:12 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/21 17:40:59 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/22 18:49:36 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ void Server::acceptNewClient()
     client_pollfd.fd = client_socket;
     client_pollfd.events = POLLIN;
     poll_fds.push_back(client_pollfd);
-    std::cout << "New client connected: " << clientIP << " fd=" << client_socket << std::endl;
+    std::cout << client.getUser() << " connected: " << clientIP << " fd=" << client_socket << std::endl;
 }
 
 void Server::handleClientWrite() // Scrive dati al client (invia risposte)

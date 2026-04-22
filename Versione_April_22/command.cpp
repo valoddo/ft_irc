@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/22 16:45:30 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/22 18:50:33 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void Server::tryAuthenticate(Client& client)
     client.getWriteBuffer() += ":" + getName() + " 001 " + nick + " :Welcome to " + getName() + "  " + client.getPrefix() + "\r\n";
     client.getWriteBuffer() += ":" + getName() + " 002 " + nick + " :Your host is " + getName() + "\r\n";
     client.getWriteBuffer() += ":" + getName() + " 003 " + nick + " :This server was created today\r\n";
-    client.getWriteBuffer() += ":" + getName() + " 004 " + nick + " :"+ getName() + " 1.0 o o\r\n";
+    client.getWriteBuffer() += ":" + getName() + " 004 " + nick + getName() + " 1.0 o o\r\n";
     int fd = client.getClientFd();
     for (size_t i = 1; i < client_vect.size(); i++) {
         if (client_vect[i].getClientFd() == fd) {
@@ -198,7 +198,6 @@ static  std::vector<std::string>    littelParsing(std::string& parameters)
 	return (result);
 }
 
-
 void    Server::execTopic(Client &client, std::string &params) // TOPIC <#canale> :<nuovo topic>
 {
     std::vector<std::string>    parameters;
@@ -208,20 +207,23 @@ void    Server::execTopic(Client &client, std::string &params) // TOPIC <#canale
     parameters = littelParsing(params);
     if (parameters.empty())//461 ERR_NEEDMOREPARAMS
     {
-        sendReply(client, ":" + getName() + " 461 " + client.getNick() + " TOPIC :Not enough parameters\r\n");
+        client.getWriteBuffer() += ":" + getName() + " 461 " + client.getNick() 
+            + " TOPIC :Not enough parameters\r\n";
         return;
     }
     std::string channelName = parameters[0];
     //se non esiste il canale 403 ERR_NOSUCHCHANNEL
     if (channelName.empty() || channelName[0] != '#')
     {
-        sendReply(client, ":" + getName() + " 403 " + client.getNick() + " " + channelName + " :No such channel\r\n");
+        client.getWriteBuffer() += ":" + getName() + " 403 " + client.getNick() 
+            + " " + channelName + " :No such channel\r\n";
         return;
     }
     std::map<std::string, Channel>::iterator it = channels.find(channelName);
 	if (it == channels.end())
     {
-        sendReply(client,":" + getName() + " 403 " + client.getNick() + " " + channelName + " :No such channel\r\n");
+        client.getWriteBuffer() += ":" + getName() + " 403 " + client.getNick() 
+            + " " + channelName + " :No such channel\r\n";
         return;
     }
 	Channel	&ch = it->second;
@@ -229,21 +231,29 @@ void    Server::execTopic(Client &client, std::string &params) // TOPIC <#canale
     if (parameters.size() == 1)
     {
 		if (ch.getTopic().empty())// RPL_NOTOPIC (331)
-            sendReply(client,":" + getName() + " 331 " + client.getNick() + " " + channelName + " :No topic is set\r\n");
+        {
+            client.getWriteBuffer() += ":" + getName() + " 331 " + client.getNick() 
+            + " " + channelName + " :No topic is set\r\n";
+        }
         else// RPL_TOPIC (332)
-            sendReply(client,":" + getName() + " 332 " + client.getNick() + " " + channelName + " :" + ch.getTopic() + "\r\n");
+        {
+            client.getWriteBuffer() += ":" + getName() + " 332 " + client.getNick() 
+            + " " + channelName + " :" + ch.getTopic() + "\r\n";
+		}
     }
     //piu di 1 parametro: Change/set the Topic (TOPIC #channel :new topic)
     else 
     {
 		if (!ch.isMember(client))//442 ERR_NOTONCHANNEL
 		{
-			sendReply(client,":" + getName() + " 442 " + client.getNick() + " " + channelName + " :You're not on that channel\r\n");
+			client.getWriteBuffer() += ":" + getName() + " 442 " + client.getNick() 
+                + " " + channelName + " :You're not on that channel\r\n";
 			return;
 		}
         if (ch.getTopicRestrict() && !(ch.isOperator(client)))//482 ERR_CHANOPRPRIVSNEEDED
 		{
-			sendReply(client,":" + getName() + " 482 " + client.getNick() + " " + channelName + " :You're not a channel operator\r\n");
+			client.getWriteBuffer() += ":" + getName() + " 482 " + client.getNick() 
+				+ " " + channelName + " :You're not a channel operator\r\n";
 			return;
 		}
         // change the topic and broadcast the change to everyone in the channel
@@ -311,7 +321,7 @@ void Server::execPrivmsg(Client& client, const std::string& params)
     }
     for (size_t i = 0; i < client_vect.size(); ++i) { // Caso nickname
         if (client_vect[i].getNick() == target) {
-            client_vect[i].getWriteBuffer() += fullMsg;
+            client_vect[i].getWriteBuffer() += fullMsg + "\r\n";
             poll_fds[i].events |= POLLOUT;
             return;
         }
@@ -328,7 +338,8 @@ void Server::execMode(Client& client, std::string& params)// MODE <channel> [mod
     parameters = littelParsing(params);
     if (params.empty())//461 ERR_NEEDMOREPARAMS
     {
-        sendReply(client,":" + getName() + " 461 " + client.getNick() + " MODE :Not enough parameters\r\n");
+        client.getWriteBuffer() += ":" + getName() + " 461 " + client.getNick() 
+			+ " MODE :Not enough parameters\r\n";
         return;
     }
     if (parameters.size() >= 1)
@@ -337,13 +348,15 @@ void Server::execMode(Client& client, std::string& params)// MODE <channel> [mod
         //se non esiste il canale
         if (channelName.empty() || channelName[0] != '#')
         {
-            sendReply(client,":" + getName() + " 403 " + client.getNick() + " " + channelName + " :No such channel\r\n");
+            client.getWriteBuffer() += ":" + getName() + " 403 " + client.getNick() 
+				+ " " + channelName + " :No such channel\r\n";
             return;
         }
         std::map<std::string, Channel>::iterator it = channels.find(channelName);
         if (it == channels.end())
         {
-            sendReply(client,":" + getName() + " 403 " + client.getNick() + " " + channelName + " :No such channel\r\n");
+            client.getWriteBuffer() += ":" + getName() + " 403 " + client.getNick()
+				 + " " + channelName + " :No such channel\r\n";
             return;
         }
         Channel& ch = it->second;
@@ -458,11 +471,9 @@ remove client from poll_fds e client_vect
 
 */
 void Server::execQuit(Client& client, const std::string& params){//params is mess opzionale dopo QUIT
-	std::string quitMessage = "";//se client non da un messaggio then protocollo irc chiede defult quit
+	std::string quitMessage = "Leaving";//se client non da un messaggio then protocollo irc chiede defult quit
 	if (!params.empty() && params[0] == ':')
 		quitMessage = params.substr(1);
-    else
-        quitMessage = "";
 	std::string quitMsg = ":" + client.getPrefix() + " QUIT :" + quitMessage;//formato irc x annunciare quit "":nickname!username@ip QUIT :messaggio"
 	//ora brodcast a tutti i channel
 	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it){
@@ -476,6 +487,7 @@ void Server::execQuit(Client& client, const std::string& params){//params is mes
 		if (client_vect[i].getClientFd() == client.getClientFd()){
 			poll_fds.erase(poll_fds.begin() + i);
 			client_vect.erase(client_vect.begin() + i);
+            std::cout << client_vect[i].getUser() << " disconnected" << std::endl;
 			break;
 		}
 	}

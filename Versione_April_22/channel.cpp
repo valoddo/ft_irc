@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 22:14:52 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/22 16:27:15 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/21 20:24:21 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,7 +245,7 @@ void Channel::processMode(Client& client, const std::vector<std::string>& param)
 //>> @time=2026-04-20T16:22:57.933Z :cacorreaa!~carolina@185.30.66.235 MODE #my42irc +k pwpw
 					std::string flags = " +k ";
 					std::string	msg = ":" + client.getPrefix() + " MODE " + channel_name + 
-						flags + param[index];//manca time ini sender RIMOSSO /r/n perche con il broadcast si ripete
+						flags + param[index] + "\r\n";//manca time ini sender
 					broadcast(msg, NULL);
 				}
 				else if (c == 'l' && flagSign == '+')
@@ -257,11 +257,13 @@ void Channel::processMode(Client& client, const std::vector<std::string>& param)
 					user_limit = value;
 					std::string flags = " +l ";
 					std::string	msg = ":" + client.getPrefix() + " MODE " + channel_name + 
-						flags + param[index]; // RIMOSSO /r/n perche con il broadcast si ripete
+						flags + param[index] + "\r\n";
 					broadcast(msg, NULL);
 				}
-				if (c == 'o')
+				if (c == 'o')	
+				{
 					setClientOp(client, param[index], flagSign);
+				}
 			}
 			else
 				wrErrChnOpNeeded(client, channel_name);
@@ -300,16 +302,16 @@ void Channel::processKick(Client& kicker, Client& target, const std::string& rea
         kicker.getWriteBuffer() += "441 " + target.getNick() + " " + channel_name + " :They aren't on that channel\r\n";
         return;
     }
-    std::string kickMsg = ":" + kicker.getPrefix() + " KICK " + channel_name + " " + target.getNick() + " :" + reason;
+    std::string kickMsg = ":" + kicker.getPrefix() + " KICK " + channel_name + " " + target.getNick() + " :" + reason + "\r\n";
     broadcast(kickMsg, NULL);
     removeClient(target);
 }
 
-// void Channel::processQuit(Client& client, const std::string& quitMessage){
-//     if (!isMember(client))//if client not member do nothing
-//         return ;
-//     std::string quitMsg = ":" + client.getPrefix() + " QUIT :" + quitMessage;
-//     broadcast(quitMsg, NULL);
-//     removeClient(client);
-// }
+void Channel::processQuit(Client& client, const std::string& quitMessage){
+    if (!isMember(client))//if client not member do nothing
+        return ;
+    std::string quitMsg = ":" + client.getPrefix() + " QUIT :" + quitMessage + "\r\n";
+    broadcast(quitMsg, NULL);
+    removeClient(client);
+}
 
