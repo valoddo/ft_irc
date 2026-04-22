@@ -6,7 +6,7 @@
 /*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/22 15:38:21 by sel-khao         ###   ########.fr       */
+/*   Updated: 2026/04/22 16:45:30 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void Server::tryAuthenticate(Client& client)
     client.getWriteBuffer() += ":" + getName() + " 001 " + nick + " :Welcome to " + getName() + "  " + client.getPrefix() + "\r\n";
     client.getWriteBuffer() += ":" + getName() + " 002 " + nick + " :Your host is " + getName() + "\r\n";
     client.getWriteBuffer() += ":" + getName() + " 003 " + nick + " :This server was created today\r\n";
-    client.getWriteBuffer() += ":" + getName() + " 004 " + nick + getName() + " 1.0 o o\r\n";
+    client.getWriteBuffer() += ":" + getName() + " 004 " + nick + " :"+ getName() + " 1.0 o o\r\n";
     int fd = client.getClientFd();
     for (size_t i = 1; i < client_vect.size(); i++) {
         if (client_vect[i].getClientFd() == fd) {
@@ -458,9 +458,11 @@ remove client from poll_fds e client_vect
 
 */
 void Server::execQuit(Client& client, const std::string& params){//params is mess opzionale dopo QUIT
-	std::string quitMessage = "Quit";//se client non da un messaggio then protocollo irc chiede defult quit
+	std::string quitMessage = "";//se client non da un messaggio then protocollo irc chiede defult quit
 	if (!params.empty() && params[0] == ':')
 		quitMessage = params.substr(1);
+    else
+        quitMessage = "";
 	std::string quitMsg = ":" + client.getPrefix() + " QUIT :" + quitMessage;//formato irc x annunciare quit "":nickname!username@ip QUIT :messaggio"
 	//ora brodcast a tutti i channel
 	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it){

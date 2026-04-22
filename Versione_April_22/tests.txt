@@ -3,3 +3,24 @@ bene:
 kick
 join
 invite
+
+
+
+sistemato:
+
+/r/n tolto laddove viene chiamato broadcast()
+
+
+lil probles:
+
+(1)
+
+PASS PASS ciao
+464 :Password incorrect
+PASSciao
+451 PASSCIAO :You have not registered
+PAss
+464 :Password incorrect
+PAss ciao
+
+2
