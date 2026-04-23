@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:07 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/16 02:05:24 by marvin           ###   ########.fr       */
+/*   Updated: 2026/04/23 16:45:54 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
 #include "client.hpp"
+
 
 int main(int argc, char **argv)
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/23 13:48:27 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/23 14:42:57 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void Server::tryAuthenticate(Client& client)
     client.getWriteBuffer() += ":" + getName() + " 001 " + nick + " :Welcome to " + getName() + "  " + client.getPrefix() + "\r\n";
     client.getWriteBuffer() += ":" + getName() + " 002 " + nick + " :Your host is " + getName() + "\r\n";
     client.getWriteBuffer() += ":" + getName() + " 003 " + nick + " :This server was created today\r\n";
-    client.getWriteBuffer() += ":" + getName() + " 004 " + nick + getName() + " 1.0 o o\r\n";
+    client.getWriteBuffer() += ":" + getName() + " 004 " + nick + " :" + getName() + " 1.0 o o\r\n";
     int fd = client.getClientFd();
     for (size_t i = 1; i < client_vect.size(); i++) {
         if (client_vect[i].getClientFd() == fd) {
