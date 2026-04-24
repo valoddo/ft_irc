@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ircbot.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: sel-khao <sel-khao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/23 13:17:42 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/23 20:08:22 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/24 14:39:03 by sel-khao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,17 +84,15 @@ void IRCBot::joinChannel(void)
 
 void IRCBot::sendHelp()
 {
-    std::string msg = " : \
-    ╔══════════════════════════════════════╗\
-    ║      🤖 BOT COMANDI DISPONIBILI      ║\
-    ╠══════════════════════════════════════╣\
-    ║ !help    - Mostra questi comandi     ║\
-    ║ !quote   - Frase motivazionale       ║\
-    ║ !time    - Orario attuale            ║\
-    ║ !hello   - Saluta il bot             ║\
-    ║ !frase   - Un'altra frase motivante  ║\
-    ╚══════════════════════════════════════╝";
-    sendRaw("PRIVMSG " + sender + msg);
+    sendRaw("PRIVMSG " + sender + "╔══════════════════════════════════════╗\n");
+    sendRaw("PRIVMSG " + sender + "║      🤖 BOT COMANDI DISPONIBILI      ║\n");
+    sendRaw("PRIVMSG " + sender + "╠══════════════════════════════════════╣\n");
+    sendRaw("PRIVMSG " + sender + "║ !help    - Mostra questi comandi     ║\n");
+    sendRaw("PRIVMSG " + sender + "║ !quote   - Frase motivazionale       ║\n");
+    sendRaw("PRIVMSG " + sender + "║ !time    - Orario attuale            ║\n");
+    sendRaw("PRIVMSG " + sender + "║ !hello   - Saluta il bot             ║\n");
+    sendRaw("PRIVMSG " + sender + "║ !frase   - Un'altra frase motivante  ║\n");
+    sendRaw("PRIVMSG " + sender + "╚══════════════════════════════════════╝\n");
 }
 
 void IRCBot::processCommand(const std::string& sender, const std::string& target, const std::string& cmd, const std::string& args)
