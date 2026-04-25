@@ -6,19 +6,14 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 13:34:58 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/24 13:00:31 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/25 17:09:43 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-# include <iostream>
-# include <string>
-# include <unistd.h>
-# include <cstring>
-# include <sys/socket.h> //funzioni socket: socket(), connect(), send(), recv()
-# include <arpa/inet.h>  // funzioni indirizzi IP: sockaddr_in, inet_addr, htons
+# include "ft_irc.hpp"
 
 class Client
 {

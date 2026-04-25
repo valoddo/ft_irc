@@ -6,7 +6,7 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:12 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/24 19:23:27 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/25 17:45:27 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void Server::sendReply(Client& client, const std::string& msg)
 
 Server::Server(const std::string& port, const std::string& password)
 {
-	server_name = "Grapita";
+	server_name = SERVER_NAME;
 	server_port = port;
 	server_password = password;
 	socket_fd = -1;

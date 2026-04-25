@@ -6,33 +6,16 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 14:04:19 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/24 12:07:28 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/25 17:11:35 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
+# include "ft_irc.hpp"
 # include "client.hpp"
 # include "channel.hpp"
-
-# include <iostream>
-# include <cstdlib>
-# include <poll.h>
-# include <sys/time.h>
-# include <vector>
-# include <cerrno>
-# include <sys/unistd.h>
-# include <sys/fcntl.h>
-# include <netdb.h>
-# include <netinet/in.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <arpa/inet.h> 
-# include <string>
-# include <unistd.h>
-# include <fcntl.h>
-# include <map>
 
 class Server
 {

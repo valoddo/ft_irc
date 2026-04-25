@@ -6,7 +6,7 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 19:38:50 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/24 20:05:01 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/25 18:15:08 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,7 @@ void Server::execJoin(Client& client, const std::string& params)
         channels[channelName] = Channel(channelName);
         it = channels.find(channelName);
     }
-    std::string server_name = getName();
-    it->second.processJoin(client, client_vect, password, server_name);
+    it->second.processJoin(client, client_vect, password);
 }
 
 //commmand use: INVITE <nickname> <#canale>
@@ -86,7 +85,7 @@ void Server::execInvite(Client& client, const std::string& params)
         sendReply(client,  ":" + getName() + " 401 " + client.getNick() + " " + targetnick + " :No such nick\r\n");
         return;
     }
-    it->second.processInvite(client, *it_client, server_name);
+    it->second.processInvite(client, *it_client);
 }
 
 //command use: QUIT [<Quit message>]
@@ -95,8 +94,8 @@ void Server::execQuit(Client& client, const std::string& params){
 	if (!params.empty() && params[0] == ':')
 		quitMessage = params.substr(1);
 	std::string quitMsg = ":" + client.getPrefix() + " QUIT :" + quitMessage;
-	//ora brodcast a tutti i channel
-	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it){
+
+    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it){
 		if (it->second.isMember(client)){
 			it->second.broadcast(quitMsg, client_vect);
 			it->second.removeClient(client);

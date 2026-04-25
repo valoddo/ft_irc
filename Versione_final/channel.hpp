@@ -6,21 +6,15 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 18:06:03 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/24 20:05:55 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/25 17:25:46 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
+# include "ft_irc.hpp"
 # include "client.hpp"
-
-# include <iostream>
-# include <unistd.h>
-# include <string.h>
-# include <vector>
-# include <map>
-# include <sstream>
 
 class Channel
 {
@@ -60,8 +54,8 @@ class Channel
 		void sendToClient(Client& client, const std::string& message);
 		
 		// Public methods for commands
-		void processJoin(Client& client, const std::vector<Client>& client_vect, const std::string& pass, const std::string& server_name);
-		void processInvite(Client& inviter, Client& target, const std::string& server_name);
+		void processJoin(Client& client, const std::vector<Client>& client_vect, const std::string& pass);
+		void processInvite(Client& inviter, Client& target);
 		void processMode(Client& client, const std::vector<Client>& client_vect, const std::vector<std::string>& param);
 		void processKick(Client& kicker, Client& target, const std::vector<Client>& client_vect, const std::string& reason);
 		void processQuit(Client& client, const std::vector<Client>& client_vect, const std::string& quitMessage);

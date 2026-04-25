@@ -6,7 +6,7 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/24 10:28:08 by cacorrea          #+#    #+#             */
-/*   Updated: 2026/04/24 11:52:16 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/25 17:40:08 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,14 @@ static  std::vector<std::string> extractTokens(const std::string& input)
 
 static  std::vector<std::string>    littelParsing(std::string& parameters)
 {
-	size_t		pos;
-	std::string	msg;
-	bool		hasMsg = false;
+	size_t						pos;
+	std::string					msg;
+	bool						hasMsg = false;
 	std::vector<std::string>    result;
-	
+
 	pos = parameters.find(":");
 	if (pos != std::string::npos)
-	{//divide in due eliminando i :
+	{
 		msg = parameters.substr(pos + 1);
 		parameters = parameters.substr(0, pos);
 		hasMsg = true;
@@ -45,31 +45,31 @@ static  std::vector<std::string>    littelParsing(std::string& parameters)
 	return (result);
 }
 
-static void	printTopic(Client& client, Channel& channel, std::string server_name)
+static void	printTopic(Client& client, Channel& channel)
 {
 	if (channel.getTopic().empty())
 	{
-		client.getWriteBuffer() += ":" + server_name + " 331 " + client.getNick() 
+		client.getWriteBuffer() += ":" SERVER_NAME " 331 " + client.getNick() 
 		+ " " + channel.getName() + " :No topic is set\r\n";
 	}
 	else
 	{
-		client.getWriteBuffer() += ":" + server_name + " 332 " + client.getNick() 
+		client.getWriteBuffer() += ":" SERVER_NAME " 332 " + client.getNick() 
 		+ " " + channel.getName() + " :" + channel.getTopic() + "\r\n";
 	}
 }
 
-static bool	canChangeTopic(Client& client, Channel& channel, std::string server_name)
+static bool	canChangeTopic(Client& client, Channel& channel)
 {
 	if (!channel.isMember(client))
 	{
-		client.getWriteBuffer() += ":" + server_name + " 442 " + client.getNick() 
+		client.getWriteBuffer() += ":" SERVER_NAME " 442 " + client.getNick() 
 			+ " " + channel.getName() + " :You're not on that channel\r\n";
 		return (false);
 	}
 	if (channel.getTopicRestrict() && !(channel.isOperator(client)))
 	{
-		client.getWriteBuffer() += ":" + server_name + " 482 " + client.getNick() 
+		client.getWriteBuffer() += ":" SERVER_NAME " 482 " + client.getNick() 
 			+ " " + channel.getName() + " :You're not a channel operator\r\n";
 		return (false);
 	}
@@ -107,12 +107,12 @@ void    Server::execTopic(Client &client, std::string &params)
 	
 	if (parameters.size() == 1)
 	{
-		printTopic(client, ch, getName());
+		printTopic(client, ch);
 		return ;
 	}
 	else if (parameters.size() > 1)
 	{
-		if (!canChangeTopic(client, ch, getName()))
+		if (!canChangeTopic(client, ch))
 			return;
 		ch.setTopic(parameters[1]);
 		std::string	msg = ":" + client.getPrefix() + " TOPIC " + channelName + " :" + ch.getTopic();

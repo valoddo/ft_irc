@@ -6,13 +6,11 @@
 /*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 22:14:52 by vloddo            #+#    #+#             */
-/*   Updated: 2026/04/24 20:03:52 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/25 17:30:28 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "channel.hpp"
-
-static const char* g_server_name = "inception";
 
 static Client* findClientByFd(const std::vector<Client>& client_vect, int fd)
 {
@@ -107,24 +105,24 @@ void Channel::sendToClient(Client& client, const std::string& message)
 }
 
 //If the second parameter is missing, it defaults to an empty value
-void Channel::processJoin(Client& client, const std::vector<Client>& client_vect, const std::string& pass, const std::string& server_name)
+void Channel::processJoin(Client& client, const std::vector<Client>& client_vect, const std::string& pass)
 {
 	if(pass!= password){
-		client.getWriteBuffer() += ":" + server_name + " 475 " + client.getNick() + " " + channel_name + " :Bad channel key\r\n";
+		client.getWriteBuffer() += ":" SERVER_NAME " 475 " + client.getNick() + " " + channel_name + " :Bad channel key\r\n";
 		return;        
 	}
 	if(isInviteOnly() && !isInvited(client)){
-		client.getWriteBuffer() += ":" + server_name + " 473 " + client.getNick() + " " + channel_name + " :Cannot join channel (+i)\r\n";
+		client.getWriteBuffer() += ":" SERVER_NAME " 473 " + client.getNick() + " " + channel_name + " :Cannot join channel (+i)\r\n";
 		return;        
 	}
 
 	if(user_limit != 0 && clients.size() >= user_limit)
 	{
-		client.getWriteBuffer() += ":" + server_name + " 471 " + client.getNick() + " " + channel_name + " :Cannot join channel (+l)\r\n";
+		client.getWriteBuffer() += ":" SERVER_NAME " 471 " + client.getNick() + " " + channel_name + " :Cannot join channel (+l)\r\n";
 		return;  	
 	}
 	if(isMember(client)){
-		client.getWriteBuffer() += ":" + server_name + " 443 " + client.getNick() + " #" + getName() + " :is already on channel\r\n";
+		client.getWriteBuffer() += ":" SERVER_NAME " 443 " + client.getNick() + " #" + getName() + " :is already on channel\r\n";
 		return;
 	}
 	else{
@@ -133,20 +131,20 @@ void Channel::processJoin(Client& client, const std::vector<Client>& client_vect
 		else	
 			clients[client.getClientFd()] = false;
 		broadcast(":" + client.getPrefix() + " JOIN :" + getName(), client_vect);
-		client.getWriteBuffer() += ":" + server_name + " 353 " + client.getNick() + " = " + getName() + " :@" + client.getNick() + "\r\n";
-		client.getWriteBuffer() += ":" + server_name + " 366 " + client.getNick() + " " + getName() + " :End of /NAMES list\r\n";
+		client.getWriteBuffer() += ":" SERVER_NAME " 353 " + client.getNick() + " = " + getName() + " :@" + client.getNick() + "\r\n";
+		client.getWriteBuffer() += ":" SERVER_NAME " 366 " + client.getNick() + " " + getName() + " :End of /NAMES list\r\n";
 	}
 }
 		
-void Channel::processInvite(Client& inviter, Client& target, const std::string& server_name)
+void Channel::processInvite(Client& inviter, Client& target)
 {
 	if(isInviteOnly() && !isOperator(inviter))
 	{
-		inviter.getWriteBuffer() += ":" + server_name + " 482 " + inviter.getNick() + " " + getName() + " :You're not a channel operator\r\n";
+		inviter.getWriteBuffer() += ":" SERVER_NAME " 482 " + inviter.getNick() + " " + getName() + " :You're not a channel operator\r\n";
 		return;        
 	}
 	invited.push_back(target.getNick());
-	inviter.getWriteBuffer() += ":" + server_name + " 341 " + inviter.getNick() + " " + target.getNick() + " " + getName() + "\r\n";
+	inviter.getWriteBuffer() += ":" SERVER_NAME " 341 " + inviter.getNick() + " " + target.getNick() + " " + getName() + "\r\n";
 	target.getWriteBuffer() += ":" + inviter.getPrefix() + " INVITE " + target.getNick() + " :" + getName() + "\r\n";
 }
 
@@ -171,7 +169,7 @@ void Channel::setClientOp(Client& commander, const std::vector<Client>& client_v
 			return;
 		}
 	}
-	commander.getWriteBuffer() +=  ":" + std::string(g_server_name) + " 401 " + commander.getNick() + " " + targetName + 
+	commander.getWriteBuffer() +=  ":" SERVER_NAME " 401 " + commander.getNick() + " " + targetName + 
 		" :No such nick\r\n";
 }
 
@@ -191,7 +189,7 @@ void Channel::processMode(Client& client, const std::vector<Client>& client_vect
 		}
 		if (isMember(client) && (modes.find('k') != std::string::npos))
 			modes += " " + getPass();
-		client.getWriteBuffer() += ":" + std::string(g_server_name) + " 324 " + client.getNick() + " " + channel_name + " :" + modes + "\r\n";
+		client.getWriteBuffer() += ":" SERVER_NAME " 324 " + client.getNick() + " " + channel_name + " :" + modes + "\r\n";
 		return;
 	}
 	std::string modes = param[1];
@@ -207,7 +205,7 @@ void Channel::processMode(Client& client, const std::vector<Client>& client_vect
 		{
 			if (!isOperator(client))
 			{
-				client.getWriteBuffer() += ":" + std::string(g_server_name) + " 482 " + client.getNick() + " " + channel_name + 
+				client.getWriteBuffer() += ":" SERVER_NAME " 482 " + client.getNick() + " " + channel_name + 
 					" :You're not a channel operator\r\n";
 				continue ;
 			}
@@ -236,7 +234,7 @@ void Channel::processMode(Client& client, const std::vector<Client>& client_vect
 		{
 			if (++index >= param.size())
 			{
-				client.getWriteBuffer() += ":" + std::string(g_server_name) + " 461 " + client.getNick() + " MODE :Not enough parameters\r\n";
+				client.getWriteBuffer() += ":" SERVER_NAME " 461 " + client.getNick() + " MODE :Not enough parameters\r\n";
 				continue ;
 			}
 			else if(isOperator(client))
@@ -267,11 +265,11 @@ void Channel::processMode(Client& client, const std::vector<Client>& client_vect
 				}
 			}
 			else
-				client.getWriteBuffer() += ":" + std::string(g_server_name) + " 482 " + client.getNick() + " " + channel_name + " :You're not a channel operator\r\n";
+				client.getWriteBuffer() += ":" SERVER_NAME " 482 " + client.getNick() + " " + channel_name + " :You're not a channel operator\r\n";
 		}
 		else
 		{
-			client.getWriteBuffer() += ":" + std::string(g_server_name) + " 472 " + client.getNick() + " " + c + 
+			client.getWriteBuffer() += ":" SERVER_NAME " 472 " + client.getNick() + " " + c + 
 			" :is an unknown mode char to me\r\n";
 		}
 	} 
@@ -295,11 +293,11 @@ std::string	Channel::getChannelModes()
 
 void Channel::processKick(Client& kicker, Client& target, const std::vector<Client>& client_vect, const std::string& reason){
 	if (!isOperator(kicker)){
-		kicker.getWriteBuffer() += ":" + std::string(g_server_name) + " 482 " + kicker.getNick() + " " + channel_name + " :You're not a channel operator\r\n";
+		kicker.getWriteBuffer() += ":" SERVER_NAME " 482 " + kicker.getNick() + " " + channel_name + " :You're not a channel operator\r\n";
 		return;
 	}
 	if (!isMember(target)){
-		kicker.getWriteBuffer() += ":" + std::string(g_server_name) + " 441 " + kicker.getNick() + " " + target.getNick() + " " + channel_name + " :They aren't on that channel\r\n";
+		kicker.getWriteBuffer() += ":" SERVER_NAME " 441 " + kicker.getNick() + " " + target.getNick() + " " + channel_name + " :They aren't on that channel\r\n";
 		return;
 	}
 	std::string kickMsg = ":" + kicker.getPrefix() + " KICK " + channel_name + " " + target.getNick() + " :" + reason + "\r\n";
