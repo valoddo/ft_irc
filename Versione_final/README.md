@@ -1,6 +1,6 @@
 *This project has been created as part of the 42 curriculum by cacorrea, sel-khao, vloddo.*
 
-# ft_irc
+# 💬 ft_irc
 
 ## Description
 **ft_irc** is a minimal implementation of an IRC (Internet Relay Chat) server written in C++.  
@@ -31,6 +31,22 @@ The server supports the core functionalities required by standard IRC clients:
 ### Compilation
 To compile the program, use: **make**
 
+```bash
+c++ -Wall -Wextra -Werror -std=c++98 *.cpp -o ircserv
+```
+
+Run it with:
+
+```bash
+./ircserv <port> <password>
+```
+
+Example:
+
+```bash
+./ircserv 6667 password
+```
+
 ### Execution
 To start the Server, use: ./ircserv <port> <password>
  - `port`: The port number on which the IRC server listens for incoming connections.
@@ -47,3 +63,35 @@ You can also use an IRC Client such as HexChat, WeeChat...
 - IRC protocol documentation (https://datatracker.ietf.org/doc/html/rfc1459) was studied to understand the protocol specifications and to guide the implementation of its behavior and message handling.
 - Beej's Guide to Network Programming (https://beej.us/guide/bgnet/) was used as a reference for socket programming and networking fundamentals.
 - AI tools (ChatGPT, DeepSeek) were used to clarify concepts, provide explanations, and suggest ways to organize and divide the work.
+
+## 🤖 Bananito Bot
+
+As a small extension of the project, it has been implemented **Bananito**, a minimal IRC bot used mainly for testing and interaction with the server.
+
+Bananito connects to the IRC server like a normal client: it authenticates using `PASS`, `NICK`, and `USER`, then automatically joins a specified channel. Once connected, it listens to incoming messages and reacts to simple commands sent by users.
+The bot currently supports:
+* `!help` → displays a list of available commands
+* `!hello` → replies with a greeting message
+It also correctly handles basic IRC behavior such as responding to `PING` messages to keep the connection alive.
+
+### Compilation & Usage
+
+Compile the bot with:
+
+```bash
+c++ -Wall -Wextra -Werror -std=c++98 *.cpp -o bananito
+```
+
+Run it with:
+
+```bash
+./bananito <ip> <port> <password> <nickname> <channel>
+```
+
+Example:
+
+```bash
+./bananito 127.0.0.1 6667 password Bananito #test
+```
+
+This bot is not meant to be a full IRC client, but rather a simple and effective tool to interact with and validate the behavior of IRC server.
