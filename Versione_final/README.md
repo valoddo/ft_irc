@@ -19,7 +19,7 @@ The server supports the core functionalities required by standard IRC clients:
 
 - **Authentication & Connection**: password-protected server access and handling of the `PASS`, `NICK`, and `USER` commands for client registration.
 - **Channel Management**: users can create, join, and leave channels using `JOIN`, `PART`, and `QUIT`.
-- **Messaging**: private messages between users and broadcast messages within channels using `PRIVMSG` and `NOTICE`.
+- **Messaging**: private messages between users and broadcast messages within channels using `PRIVMSG`.
 - **Channel Operators**: certain users can be granted operator privileges to manage channel operations.
 - **Operator Commands**:
   - `KICK`: remove a client from a channel
