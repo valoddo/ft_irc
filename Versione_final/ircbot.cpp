@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ircbot.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/23 13:17:42 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/27 15:57:43 by vloddo           ###   ########.fr       */
+/*   Updated: 2026/04/27 16:23:35 by cacorrea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ void IRCBot::sendHelp(const std::string& target)
         "║ KICK     - Eject a client from the channel  ║\n"
         "║ TOPIC    - Change or view the channel topic ║\n"
         "║ MODE     - Change the channel’s mode        ║\n"        
+        "║ QUIT     - Disconnect from server           ║\n" 
         "╚═════════════════════════════════════════════╝";
     
     sendRaw("PRIVMSG " + target + " :\n" + help_msg);
