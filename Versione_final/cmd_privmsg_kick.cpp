@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_privmsg_kick.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/24 11:50:22 by cacorrea          #+#    #+#             */
-/*   Updated: 2026/04/25 17:36:08 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/27 16:47:32 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ void Server::execKick(Client& client, const std::string& params){
         sendReply(client, ":" SERVER_NAME " 441 " + client.getNick() + " " + targetNick + " " + channelName + " :They aren't on that channel\r\n");
         return ;
 	}
-	std::string kickMsg = ":" + client.getPrefix() + " KICK " + channelName + " " + targetNick + " :" + reason + "\r\n";
+	std::string kickMsg = ":" + client.getPrefix() + " KICK " + channelName + " " + targetNick + " :" + reason;
 	channel.broadcast(kickMsg, client_vect);
 	channel.removeClient(*targetClient);
 }
