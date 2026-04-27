@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ircbot.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cacorrea <cacorrea@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vloddo <vloddo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/23 13:17:42 by sel-khao          #+#    #+#             */
-/*   Updated: 2026/04/25 19:32:33 by cacorrea         ###   ########.fr       */
+/*   Updated: 2026/04/27 15:57:43 by vloddo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,11 @@ void IRCBot::sendHelp(const std::string& target)
         "╠═════════════════════════════════════════════╣\n"
         "║ !help    - Show these commands              ║\n"
         "║ !hello   - Greet the bot                    ║\n"
+        "║ INVITE   - Invite a client to a channel     ║\n"
+        "║ JOIN     - Join a specific channel          ║\n"
+        "║ KICK     - Eject a client from the channel  ║\n"
+        "║ TOPIC    - Change or view the channel topic ║\n"
+        "║ MODE     - Change the channel’s mode        ║\n"        
         "╚═════════════════════════════════════════════╝";
     
     sendRaw("PRIVMSG " + target + " :\n" + help_msg);
@@ -115,7 +120,7 @@ void IRCBot::processCommand(const std::string& sender, const std::string& target
     if (cmd == "!help") {
         sendHelp(reply_target);
     }
-       else if (cmd == "!hello") {
+    else if (cmd == "!hello") {
         std::string response = "hello " + sender + " I'm happy to help you!";
         sendRaw("PRIVMSG " + reply_target + " :" + response);
         std::cout << "[BOT] Sent: PRIVMSG " << reply_target << " :" << response << std::endl;
